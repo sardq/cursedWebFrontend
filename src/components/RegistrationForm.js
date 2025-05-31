@@ -4,7 +4,7 @@ import { AuthContent } from './AuthContent';
 
 const RegistrationForm = ({ onRegister }) => {
     const { setView } = useContext(AuthContent);
-  const [activeTab, setActiveTab] = useState('register');
+  const [activeTab] = useState('register');
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',

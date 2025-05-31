@@ -1,17 +1,19 @@
 import  React, { useContext } from 'react';
-import { jwtDecode } from 'jwt-decode';
 
 import { request, setAuthHeader } from '../helpers/axios_helper';
+import axios from 'axios';
 
 import { AuthContent } from './AuthContent';
 import LoginForm from './LoginForm';
 import RegistrationForm from './RegistrationForm';
-import LoginForm2 from './LoginForm2';
+import AuthSelection from './AuthSelection';
+import PhoneAuth from './PhoneAuth';
+import EmailAuth from './EmailAuth';
 import UserHome from './UserHome';
 
 export default function AppContent() {
 
-    const { role, setRole, view, setView } = useContext(AuthContent);
+    const { role, setRole, view, setPhone, setEmail, setView } = useContext(AuthContent);
 
 
     const onLogin = (e, email, password) => {
@@ -25,12 +27,16 @@ export default function AppContent() {
             }).then(
             (response) => {
                 const token = response.data;
-                setAuthHeader(token);
+                localStorage.setItem('token', response.data.token);
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                setAuthHeader(token.token);
                 const userRole = token.role;
                 setRole(userRole);
                 if (userRole === "ADMIN")
                 {
-                    setView("login2");
+                    setEmail(token.email);
+                    setPhone(token.phone);
+                    setView("authSelection");
                 }
                 else
                 {
@@ -68,8 +74,10 @@ export default function AppContent() {
       <>
         {view === "login" && <LoginForm onLogin={onLogin} />}
         {view === "register" && <RegistrationForm onRegister={onRegister} />}
-        {view === "login2" && <LoginForm2/>}
-        {view === "userHome" && <UserHome/>}
+        {view === "userHome" && role === "ADMIN" && <UserHome/>}
+        {view === "authSelection" && role === "ADMIN" && <AuthSelection/>}
+        {view === "phoneAuth" && role === "ADMIN" && <PhoneAuth/>}
+        {view === "emailAuth" && role === "ADMIN" && <EmailAuth/>}
       </>
     );
 }

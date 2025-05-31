@@ -4,7 +4,7 @@ import { AuthContent } from './AuthContent';
 
 const LoginForm = ({ onLogin, onRegister }) => {
     const { setView } = useContext(AuthContent);
-  const [activeTab, setActiveTab] = useState('login');
+  const [activeTab] = useState('login');
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
