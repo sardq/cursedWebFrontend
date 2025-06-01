@@ -7,13 +7,12 @@ import { AuthContent } from './AuthContent';
 import LoginForm from './LoginForm';
 import RegistrationForm from './RegistrationForm';
 import AuthSelection from './AuthSelection';
-import PhoneAuth from './PhoneAuth';
 import EmailAuth from './EmailAuth';
 import UserHome from './UserHome';
 
 export default function AppContent() {
 
-    const { role, setRole, view, setPhone, setEmail, setView } = useContext(AuthContent);
+    const { role, setRole, view, setEmail, setView } = useContext(AuthContent);
 
 
     const onLogin = (e, email, password) => {
@@ -26,16 +25,16 @@ export default function AppContent() {
                 password: password
             }).then(
             (response) => {
-                const token = response.data;
-                localStorage.setItem('token', response.data.token);
+                const data = response.data;
+                const token = data.token;
+                localStorage.setItem('token', token);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                setAuthHeader(token.token);
-                const userRole = token.role;
+                setAuthHeader(token);
+                const userRole = data.role;
                 setRole(userRole);
                 if (userRole === "ADMIN")
                 {
-                    setEmail(token.email);
-                    setPhone(token.phone);
+                    setEmail(data.email);
                     setView("authSelection");
                 }
                 else
@@ -76,7 +75,6 @@ export default function AppContent() {
         {view === "register" && <RegistrationForm onRegister={onRegister} />}
         {view === "userHome" && role === "ADMIN" && <UserHome/>}
         {view === "authSelection" && role === "ADMIN" && <AuthSelection/>}
-        {view === "phoneAuth" && role === "ADMIN" && <PhoneAuth/>}
         {view === "emailAuth" && role === "ADMIN" && <EmailAuth/>}
       </>
     );

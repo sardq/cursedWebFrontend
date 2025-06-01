@@ -7,7 +7,6 @@ import { AuthContent } from './AuthContent';
 function App() {
   const [role, setRole] = useState(null);
   const [email, setEmail] = useState(null);
-  const [phone, setPhone] = useState(null);
   const [view, setView] = useState('login');
 
   return (
@@ -16,7 +15,7 @@ function App() {
       <div className="container-fluid">
         <div className="row">
           <div className="col">
-            <AuthContent.Provider value={{ role, setRole, view, setView, phone, setPhone, email, setEmail }}>
+            <AuthContent.Provider value={{ role, setRole, view, setView, email, setEmail }}>
               <AppContent />
             </AuthContent.Provider>
           </div>

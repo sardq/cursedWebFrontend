@@ -5,8 +5,6 @@ export const AuthContent = React.createContext({
   setRole: () => {},
   email: null,
   setEmail: () => {},
-  phone: null,
-  setPhone: () => {},
   view: 'login',
   setView: () => {},
 });

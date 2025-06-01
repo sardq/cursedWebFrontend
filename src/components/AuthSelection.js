@@ -1,33 +1,14 @@
 import React, { useContext } from 'react';
 import { AuthContent } from './AuthContent';
-import { request, setAuthHeader } from '../helpers/axios_helper';
 import axios from 'axios';
 
 const AuthSelection = () => {
-    const { email, phone, setView } = useContext(AuthContent);
-  
-   const onPhoneAuth = (e) => {
-          e.preventDefault();
-          request(
-              "POST",
-              "/api/otp/send/phone",
-              {
-                  phone: phone,
-              }).then(
-              (response) => {
-                  const token = response.data;
-                  setView("phoneAuth");
-              }).catch(
-              (error) => {
-              }
-          );
-      };
+    const { email, setView } = useContext(AuthContent);
+
+
   const onEmailAuth = (e) => {
-  e.preventDefault();
-
-  const token = localStorage.getItem("token");
-
-  axios.post(
+    e.preventDefault();
+    axios.post(
     "/api/otp/send/email",
     { email },
     {
@@ -37,8 +18,6 @@ const AuthSelection = () => {
     }
   )
   .then(response => {
-    console.log(response.data.message); 
-    console.log("OTP:", response.data.otp); 
     setView("emailAuth");
   })
   .catch(error => {
@@ -46,23 +25,14 @@ const AuthSelection = () => {
   });
 };
   return (
-    <div className="d-flex justify-content-center mt-5">
-  <div className="text-center" style={{ width: '300px' }}>
-    <form>
-      <button 
-        type="button" 
-        className="btn btn-primary w-100 mb-3"
-        onClick={onPhoneAuth}
-      >
-        Войти с помощью телефона
-      </button>
-      
+  <div className="d-flex justify-content-center mt-5">
+  <div className="text-center fabuttons" >
       <button 
         type="button" 
         className="btn btn-primary w-100 mb-3"
         onClick={onEmailAuth}
       >
-        Войти с помощью почты
+        Получить код на почту
       </button>
       
       <button 
@@ -72,9 +42,8 @@ const AuthSelection = () => {
       >
         Вернуться назад
       </button>
-    </form>
+      </div>
   </div>
-</div>
   );
 };
 
