@@ -31,7 +31,7 @@ const EmailOtpForm = () => {
           <OtpInput length={6} onOtpSubmit={onOtpSubmit} />
           <button 
             type="button" 
-            className="btn btn-primary w-40"
+            className="btn btn-primary w-40 mt-3"
             onClick={() => setView("authSelection")}
             >
             Вернуться назад

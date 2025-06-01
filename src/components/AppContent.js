@@ -73,7 +73,7 @@ export default function AppContent() {
       <>
         {view === "login" && <LoginForm onLogin={onLogin} />}
         {view === "register" && <RegistrationForm onRegister={onRegister} />}
-        {view === "userHome" && role === "ADMIN" && <UserHome/>}
+        {view === "userHome" && role === "USER" && <UserHome/>}
         {view === "authSelection" && role === "ADMIN" && <AuthSelection/>}
         {view === "emailAuth" && role === "ADMIN" && <EmailAuth/>}
       </>
