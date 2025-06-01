@@ -7,6 +7,7 @@ import { AuthContent } from './AuthContent';
 import LoginForm from './LoginForm';
 import RegistrationForm from './RegistrationForm';
 import AuthSelection from './AuthSelection';
+import ExaminationInfo from './ExaminationInfo'
 import EmailAuth from './EmailAuth';
 import UserHome from './UserHome';
 
@@ -39,6 +40,7 @@ export default function AppContent() {
                 }
                 else
                 {
+                    setEmail(data.email);
                     setView("userHome");
                 }
             }).catch(
@@ -74,6 +76,7 @@ export default function AppContent() {
         {view === "login" && <LoginForm onLogin={onLogin} />}
         {view === "register" && <RegistrationForm onRegister={onRegister} />}
         {view === "userHome" && role === "USER" && <UserHome/>}
+        {view === "examinationInfo" && role === "USER" && <ExaminationInfo/>}
         {view === "authSelection" && role === "ADMIN" && <AuthSelection/>}
         {view === "emailAuth" && role === "ADMIN" && <EmailAuth/>}
       </>

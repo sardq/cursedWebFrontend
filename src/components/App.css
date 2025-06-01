@@ -1,11 +1,19 @@
 .filters {
-    background-color: #000000;
-    position: -webkit-sticky;
-    position: sticky;
+    background-color: hwb(0 0% 100%);
     top: 0;
     height: 100vh;
 }
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 .text-center {
     margin-right: auto;
     margin-left: auto;
@@ -43,12 +51,6 @@
     margin-left: 20px;
 }
 
-.scrollable {
-    position: relative;
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-}
-
 .otpInput {
   width: 40px;
   height: 40px;
@@ -56,7 +58,6 @@
   text-align: center;
   font-size: 1.2em;
 }
-
 
 .App {
   width: 100%;
@@ -99,4 +100,54 @@
     background-color:#afafaf;
     border-color: #afafaf;
     padding: 10px;
+}
+.info-border {
+  border: 1px solid #17a2b8;
+}
+
+.page-num {
+  width: 45px !important;
+  border: 1px solid #17a2b8;
+  color: #17a2b8;
+  text-align: center;
+  font-weight: bold;
+}
+
+.arrow {
+  width: 0;
+  height: 0;
+  margin-top: 5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  display: inline-block;
+}
+
+.arrow-up {
+  border-bottom: 10px solid white;
+}
+
+.arrow-down {
+  border-top: 10px solid white;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #606060;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #bebebe;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #bebebe;
+}
+.examination-item {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
 }

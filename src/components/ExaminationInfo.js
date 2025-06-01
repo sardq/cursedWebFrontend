@@ -1,23 +1,23 @@
 import { useContext } from "react";
 import { AuthContent } from "./AuthContent";
 
-const ExaminationDescribe = ({examinationType, description, time}) => {
+const ExaminationInfo = ({examination}) => {
   
   const {setView} = useContext(AuthContent)
   return (
     <div>
-      <p>Описание: {description}</p>
-      <p>Тип обследования: {examinationType}</p>
-      <p>Дата: {time}</p>
+      <p>Описание: {examination.description}</p>
+      <p>Тип обследования: {examination.examinationType}</p>
+      <p>Дата: {examination.time}</p>
       <button 
             type="button" 
             className="btn btn-primary w-40 "
             onClick={() => setView("examinationInfo")}
             >
-            Посмотреть подробнее
+            Вернуться назад
             </button>
     </div>
   );
 };
 
-export default ExaminationDescribe;
+export default ExaminationInfo;
