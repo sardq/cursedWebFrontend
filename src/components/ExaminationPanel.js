@@ -144,9 +144,9 @@ const handelDeleteExamination = async (examinationId) => {
 
   return (
    <div className="main-content">
-     <div style={{ display: state.show ? "block" : "none" }}>
+     <div style={{ display: showToast ? "block" : "none" }}>
           <MyToast
-            show={state.show}
+            show={showToast}
             message={"Обследование успешно удалено."}
             type={"danger"}
           />
