@@ -7,9 +7,11 @@ import { AuthContent } from './AuthContent';
 import LoginForm from './LoginForm';
 import RegistrationForm from './RegistrationForm';
 import AuthSelection from './AuthSelection';
-import ExaminationInfo from './ExaminationInfo'
+import ExaminationInfo from './ExaminationInfo';
+import AdminHome from './AdminHome';
 import EmailAuth from './EmailAuth';
 import UserHome from './UserHome';
+import ExaminationPanel from './ExaminationPanel';
 
 export default function AppContent() {
 
@@ -36,7 +38,8 @@ export default function AppContent() {
                 if (userRole === "ADMIN")
                 {
                     setEmail(data.email);
-                    setView("authSelection");
+                    //setView("authSelection");
+                    setView("adminHome");
                 }
                 else
                 {
@@ -79,6 +82,8 @@ export default function AppContent() {
         {view === "examinationInfo" && role === "USER" && <ExaminationInfo/>}
         {view === "authSelection" && role === "ADMIN" && <AuthSelection/>}
         {view === "emailAuth" && role === "ADMIN" && <EmailAuth/>}
+        {view === "adminHome" && role === "ADMIN" && <AdminHome/>}
+        {view === "examinationPanel" && role === "ADMIN" && <ExaminationPanel/>}
       </>
     );
 }

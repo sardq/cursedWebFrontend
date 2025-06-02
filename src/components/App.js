@@ -13,7 +13,7 @@ function App() {
 
   return (
     <div className="App">
-          <div>
+          <div className="app-wrapper">
             <AuthContent.Provider value={{ role, setRole, view, setView, email, setEmail }}>
                <Header pageTitle="Клиника. Обследование" logoSrc={logo} />
               <AppContent />

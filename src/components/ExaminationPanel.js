@@ -2,9 +2,13 @@ import './App.css'
 import React, { useState, useEffect, useCallback, useContext  } from 'react';
 import ExaminationDescribe from './ExaminationDescribe';
 import CalendarComp from './CalendarComp';
+import MyToast from './MyToast';
 import axios from 'axios';
+import { deleteExamination } from './service/examinationActions';
 import {
   Card,
+  Table,
+  ButtonGroup,
   Button,
   InputGroup,
   FormControl,
@@ -12,6 +16,8 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faList,
+  faEdit,
+  faTrash,
   faStepBackward,
   faFastBackward,
   faStepForward,
@@ -21,12 +27,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { AuthContent } from './AuthContent';
 
-const UserHome = () => {
+const ExaminationPanel = () => {
   const { email } = useContext(AuthContent);
   const [dateStart, setStartDate] = useState(new Date());
   const [dateEnd, setEndDate] = useState(new Date());
   const [typeName, setTypeName] = useState("");
   const [typeOptions, setTypeOptions] = useState([]);
+  const [showToast, setShowToast] = useState(false);
   const [state, setState] = useState({
     examinations: [],
     search: "",
@@ -124,9 +131,26 @@ useEffect(() => {
   const isFirstPage = state.currentPage === 1;
   const isLastPage = state.currentPage === state.totalPages;
 
+const handelDeleteExamination = async (examinationId) => {
+    try {
+      const result = await deleteExamination(examinationId);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);      
+      await getExaminations(state.currentPage);
+    } catch (error) {
+      console.error("Ошибка при удалении:", error);
+    }
+  };
 
   return (
    <div className="main-content">
+     <div style={{ display: state.show ? "block" : "none" }}>
+          <MyToast
+            show={state.show}
+            message={"Обследование успешно удалено."}
+            type={"danger"}
+          />
+        </div>
       <Card className={"border border-dark bg-dark text-white"} style={{display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 0, overflow: 'hidden' }}>
         <Card.Header className="bg-secondary text-white">
   <div className="container-fluid">
@@ -194,23 +218,53 @@ useEffect(() => {
 </Card.Header>
 
         <Card.Body style={{ overflowY: 'auto', flex: '1 1 auto', minHeight: 0 }}>
-          {state.examinations.length === 0 ? (
-            <div className="text-center py-4 text-muted">
-              Обследования не найдены
-            </div>
-          ) : (
-            <div className="examination-list">
-            {state.examinations.map((examination) => (
-              <div key={examination.id} className="examination-item">
-              <ExaminationDescribe
-                description={examination.description}
-                examinationType={examination.examinationTypeName}
-                time={examination.time}
-              />
-              </div>
-            ))}
-          </div>
-        )}
+          <Table bordered hover striped variant="dark">
+              <thead>
+                <tr>
+                  <th>Описание</th>
+                  <th>заключение</th>
+                  <th>Время</th>
+                  <th>Тип обследования</th>
+                  <th>ФИО пациента</th>
+                  <th>Действия</th>
+                </tr>
+              </thead>
+              <tbody>
+                {state.examinations.length === 0 ? (
+                  <tr align="center">
+                    <td colSpan="7">Нет доступных обследований.</td>
+                  </tr>
+                ) : (
+                  state.examinations.map((examination) => (
+                    <tr key={examination.id}>
+                      <td>{examination.description}</td>
+                      <td>{examination.conclusion}</td>
+                      <td>{examination.time}</td>
+                      <td>{examination.examinationTypeName}</td>
+                      <td>{examination.userFullname}</td>
+                      <td>
+                        <ButtonGroup>
+                          <Button
+                            size="sm"
+                            variant="outline-danger"
+                            onClick={() => this.handelDeleteExamination(examination.id)}
+                          >
+                          <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline-danger"
+                            onClick={() => handelDeleteExamination (examination.id)}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        </ButtonGroup>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+              </Table>
       </Card.Body>
 
         {state.examinations.length > 0 && (
@@ -258,4 +312,4 @@ useEffect(() => {
   );
 };
 
-export default UserHome;
+export default ExaminationPanel;
