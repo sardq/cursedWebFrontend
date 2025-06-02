@@ -218,7 +218,15 @@ const handelDeleteExamination = async (examinationId) => {
 </Card.Header>
 
         <Card.Body style={{ overflowY: 'auto', flex: '1 1 auto', minHeight: 0 }}>
-          <Table bordered hover striped variant="dark">
+          <Table bordered hover striped variant="dark" style = {{ tableLayout: "fixed", width: "100%" }}>
+  < colgroup>
+    <col style={{ width: "20%" }} /> 
+    <col style={{ width: "20%" }} /> 
+    <col style={{ width: "10%" }} /> 
+    <col style={{ width: "15%" }} /> 
+    <col style={{ width: "20%" }} /> 
+    <col style={{ width: "15%" }} />
+  </colgroup>
               <thead>
                 <tr>
                   <th>Описание</th>
@@ -243,13 +251,12 @@ const handelDeleteExamination = async (examinationId) => {
                       <td>{examination.examinationTypeName}</td>
                       <td>{examination.userFullname}</td>
                       <td>
-                        <ButtonGroup>
+                        <ButtonGroup className="gap-4">
                           <Button
                             size="sm"
-                            variant="outline-danger"
                             onClick={() => this.handelDeleteExamination(examination.id)}
                           >
-                          <FontAwesomeIcon icon={faTrash} />
+                          <FontAwesomeIcon icon={faEdit} />
                           </Button>
                           <Button
                             size="sm"
