@@ -2,9 +2,9 @@ import axios from "axios";
 
 const BASE_URL = "http://localhost:8080/api/examination";
 
-export const saveExamination = async (examination) => {
+export const saveExamination = async (description, conclusion, time, userId, examinationTypeId) => {
   try {
-    const response = await axios.post(`${BASE_URL}/create/`, examination);
+    const response = await axios.post(`${BASE_URL}/create/`, description, conclusion, time, userId, examinationTypeId);
     return response.data;
   } catch (error) {
     throw error;
@@ -20,9 +20,9 @@ export const fetchExaminations = async (userId = 0, page = 0) => {
   }
 };
 
-export const updateExamination = async (id, examination) => {
+export const updateExamination = async (id, formData) => {
   try {
-    const response = await axios.post(`${BASE_URL}/edit/${id}`, examination);
+    const response = await axios.post(`${BASE_URL}/edit/${id}`, formData);
     return response.data;
   } catch (error) {
     throw error;
