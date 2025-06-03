@@ -46,6 +46,12 @@ export default function Header({ pageTitle, logoSrc }) {
             >
             Параметры
           </button>
+          <button
+            className="btn m-2 bg-transparent"
+            onClick={() => setView('examinationStatistic')}
+            >
+            Статистика
+          </button>
         </nav>
       )}
       {role === "USER" && (

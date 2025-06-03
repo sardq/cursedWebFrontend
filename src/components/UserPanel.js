@@ -131,10 +131,10 @@ const handelDeleteUser = async (examinationId) => {
             className="info-border bg-dark text-white"
             onChange={handleSearchChange}
           />
-          <Button variant="outline-info" onClick={() => getUsers(1)}>
+          <Button variant="outline-dark" className="no-hover-effect" onClick={() => getUsers(1)}>
             <FontAwesomeIcon icon={faSearch} />
           </Button>
-          <Button variant="outline-danger" onClick={handleCancelSearch}>
+          <Button variant="outline-dark" className="no-hover-effect" onClick={handleCancelSearch}>
             <FontAwesomeIcon icon={faTimes} />
           </Button>
         </InputGroup>

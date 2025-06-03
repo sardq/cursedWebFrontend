@@ -1,3 +1,4 @@
+import './App.css'
 import React, { useContext, useState } from 'react';
 import classNames from 'classnames';
 import { AuthContent } from './AuthContent';
@@ -26,19 +27,19 @@ const LoginForm = ({ onLogin, onRegister }) => {
 
 
   return (
-    <div className="row justify-content-center">
+    <div className="row justify-content-center text-white">
       <div className="col-4">
         <ul className="nav nav-pills nav-justified mb-3 mt-3" id="ex1" role="tablist">
           <li className="nav-item" role="presentation">
             <button
-              className={classNames("nav-link", { active: activeTab === "login" })}
+              className={classNames("nav-link bg-secondary", { active: activeTab === "login"  })}
             >
               Войти
             </button>
           </li>
           <li className="nav-item" role="presentation">
             <button
-              className={classNames("nav-link", { active: activeTab === "register" })}
+              className={classNames("nav-link text-white", { active: activeTab === "register" })}
               onClick={() => setView("register")}
             >
               Зарегистрироваться
@@ -73,7 +74,7 @@ const LoginForm = ({ onLogin, onRegister }) => {
                 />
               </div>
 
-              <button type="submit" className="btn btn-primary btn-block mb-4">
+              <button type="submit" className="btn btn-secondary btn-block mb-4">
                 Войти
               </button>
             </form>

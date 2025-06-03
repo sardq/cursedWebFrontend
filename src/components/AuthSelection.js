@@ -29,7 +29,7 @@ const AuthSelection = () => {
   <div className="text-center fabuttons" >
       <button 
         type="button" 
-        className="btn btn-primary w-100 mb-3"
+        className="btn btn-secondary w-100 mb-3"
         onClick={onEmailAuth}
       >
         Получить код на почту
@@ -37,7 +37,7 @@ const AuthSelection = () => {
       
       <button 
         type="button" 
-        className="btn btn-primary w-100"
+        className="btn btn-secondary w-100"
         onClick={() => setView("login")}
       >
         Вернуться назад

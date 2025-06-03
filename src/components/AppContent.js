@@ -15,6 +15,7 @@ import ExaminationPanel from './ExaminationPanel';
 import ExaminationTypePanel from './ExaminationTypePanel';
 import ParametersPanel from './ParametersPanel';
 import UserPanel from './UserPanel';
+import ExaminationStatistics from './ExaminationStatistic';
 
 export default function AppContent() {
 
@@ -90,6 +91,7 @@ export default function AppContent() {
         {view === "examinationTypePanel" && role === "ADMIN" && <ExaminationTypePanel/>}
         {view === "parametersPanel" && role === "ADMIN" && <ParametersPanel/>}
         {view === "userPanel" && role === "ADMIN" && <UserPanel/>}
+        {view === "examinationStatistic" && role === "ADMIN" && <ExaminationStatistics/>}
       </>
     );
 }

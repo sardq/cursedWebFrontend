@@ -26,7 +26,7 @@ const EmailOtpForm = () => {
     };
   return (
     <div className="d-flex justify-content-center mt-5">
-        <div className="text-center fabuttons" >
+        <div className="text-center fabuttons text-white" >
           <p>Введите код, отправленный на почту {email}</p>
           <OtpInput length={6} onOtpSubmit={onOtpSubmit} />
           <button 

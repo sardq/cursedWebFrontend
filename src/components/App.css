@@ -8,6 +8,7 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  background-color: #333333;
 }
 
 body {
@@ -180,7 +181,16 @@ body {
   flex-direction: column;
   min-height: 0;
 }
+.modal-content {
+  background-color: #444444 !important;
+}
 .modal-backdrop.show {
   opacity: 1 !important;
-  background-color: #000 !important;
+  background-color: #222222 !important;
+}
+
+.no-hover-effect:hover {
+  background-color: transparent !important;
+  color: inherit !important;
+  border-color: #212529 !important;
 }

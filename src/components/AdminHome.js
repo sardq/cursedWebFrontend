@@ -5,7 +5,7 @@ const AuthSelection = () => {
     const {setView} = useContext(AuthContent);
   return (
    <div className="container mt-4">
-    <h1>Страница сотрудника</h1>
+    <h1 className="text-white" >Страница сотрудника</h1>
   <div className="row">
     <div className="col-12">
       <h2 className="text-white">Добро пожаловать, сотрудник!</h2>
@@ -51,9 +51,9 @@ const AuthSelection = () => {
     <div className="col-sm-6 col-lg-4">
       <div className="card bg-dark text-white border-info h-100">
         <div className="card-body d-flex flex-column justify-content-between">
-          <h5 className="card-title">Статистика</h5>
-          <p className="card-text">Анализ и статистика по обследованиям за выбранный период.</p>
-          <button className="btn btn-outline-info mt-auto" onClick={() => setView('statistics')}>
+          <h5 className="card-title">Список параметров</h5>
+          <p className="card-text">Просмотр, фильтрация и управление параметрами.</p>
+          <button className="btn btn-outline-info mt-auto" onClick={() => setView('parametersPanel')}>
             Перейти
           </button>
         </div>
@@ -63,9 +63,9 @@ const AuthSelection = () => {
     <div className="col-sm-6 col-lg-4">
       <div className="card bg-dark text-white border-info h-100">
         <div className="card-body d-flex flex-column justify-content-between">
-          <h5 className="card-title">Список параметров</h5>
-          <p className="card-text">Просмотр, фильтрация и управление параметрами.</p>
-          <button className="btn btn-outline-info mt-auto" onClick={() => setView('parametersPanel')}>
+          <h5 className="card-title">Статистика</h5>
+          <p className="card-text">Анализ и статистика по обследованиям за выбранный период.</p>
+          <button className="btn btn-outline-info mt-auto" onClick={() => setView('examinationStatistic')}>
             Перейти
           </button>
         </div>

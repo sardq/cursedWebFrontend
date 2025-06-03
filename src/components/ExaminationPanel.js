@@ -25,6 +25,7 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { Modal } from 'bootstrap';
+import MediaUploadComponent from './MediaComponent';
 
 const ExaminationPanel = () => {
 
@@ -34,7 +35,7 @@ const ExaminationPanel = () => {
   const [modalTypeName, setModalTypeName] = useState("");
   const [typeOptions, setTypeOptions] = useState([]);
   const [users, setUsers] = useState([]);
-
+  
   const [conclusion, setConclusion] = useState('');
   const [description, setDescription] = useState('');
   const [time, setTime] = useState(new Date());
@@ -165,12 +166,19 @@ const handelDeleteExamination = async (examinationId) => {
     }
   };
   const handletEditClick = (examination) => {
+  
     setEditingId(examination.id);
-    setDescription(examination.description);
-    setConclusion(examination.conclusion);
-    setTime(new Date(examination.time));
-    setExaminationTypeId(examination.examinationTypeId);
-    setUserId(examination.userId);
+  setDescription(examination.description);
+  setConclusion(examination.conclusion);
+  setTime(new Date(examination.time));
+  setExaminationTypeId(examination.examinationTypeId);
+  setUserId(examination.userId);
+
+  const foundType = typeOptions.find(t => t.id === examination.examinationTypeId);
+  const foundUser = users.find(u => u.id === examination.userId);
+  setModalTypeName(foundType?.name ?? '');
+  setUserName(foundUser?.fullname ?? '');
+
     openModal();
   }
   const handletCreateClick = () => {
@@ -187,6 +195,36 @@ const openModal = () => {
   };
    const closeModal = () => modalInstanceRef.current?.hide();
 
+  const handleParamChange = (idx, newVal) => {
+    setParameterValues(prev => {
+      const copy = [...prev];
+      copy[idx] = { ...copy[idx], value: newVal };
+      return copy;
+    });
+  };
+const handleSave = async () => {
+  console.log(parameterValues);
+  for (const param of parameterValues) {
+    const parameterName = parameters.find(p => p.id === param.parametersId)?.name;
+
+    const payload = {
+      parametersId: param.parametersId,
+      examinationId: editingId,
+      parametersName: parameterName,
+      body: param.value
+    };
+
+    try {
+      if (param.id) {
+        await axios.post(`/api/protocolParametres/edit/${param.id}`, payload);
+      } else {
+        await axios.post(`/api/protocolParametres/create/`, payload);
+      }
+    } catch (error) {
+      console.error("Ошибка сохранения параметра:", error);
+    }
+  }
+};
 const resetForm = () => {
     setEditingId(null);
     setCreating(false);
@@ -206,43 +244,53 @@ const resetForm = () => {
   };
 
   useEffect(() => {
-    if (examinationTypeId) {
-      const fetchParameters = async () => {
-        try {
-          const params = {
-            examinationTypeId : examinationTypeId
-          }
-          const response = await axios.get(
-            "http://localhost:8080/api/parametres/GetParametersByTypeId", {params}
-          );
-          console.log(response.data.content)
-          const paramsFromApi = response.data.content;
-          setParameters(paramsFromApi);
-          setParameterValues(
-            paramsFromApi.map(p => ({
-              parameterId: p.id,
-              value: ''
-            }))
-          );
-        } catch (e) {
-          console.error("Ошибка загрузки параметров:", e);
-          setParameters([]);
-          setParameterValues([]);
+  const fetchParamsAndValues = async () => {
+    if (!examinationTypeId) {
+      setParameters([]);
+      setParameterValues([]);
+      return;
+    }
+
+    try {
+      const response = await axios.get("http://localhost:8080/api/parametres/GetParametersByTypeId", {
+        params: { examinationTypeId }
+      });
+      const paramsFromApi = response.data.content;
+      setParameters(paramsFromApi);
+
+      if (editingId) {
+        const valResponse = await axios.get(`/api/protocolParametres?examinationId=${editingId}`);
+        const values = valResponse.data;
+        console.log(valResponse);
+        console.log(values);
+
+        const paramMap = new Map();
+        for (let val of values) {
+          paramMap.set(val.parametersId, val);
         }
-      };
-      fetchParameters();
-    } else {
+
+        const filled = paramsFromApi.map(p => {
+          const existing = paramMap.get(p.id);
+          return existing ? { 
+        id: existing.id,
+        parametersId: p.id,
+        value: existing.body } : { parametersId: p.id, value: "" };
+        });
+
+        setParameterValues(filled);
+      } else {
+        setParameterValues(paramsFromApi.map(p => ({ parametersId: p.id, value: "" })));
+      }
+    } catch (e) {
+      console.error("Ошибка загрузки параметров:", e);
       setParameters([]);
       setParameterValues([]);
     }
-  }, [examinationTypeId]);
-const handleParamChange = (idx, newVal) => {
-    setParameterValues(prev => {
-      const copy = [...prev];
-      copy[idx] = { ...copy[idx], value: newVal };
-      return copy;
-    });
   };
+
+  fetchParamsAndValues();
+}, [examinationTypeId, editingId]);
+
   const handleMediaFilesChange = (e) => {
     setMediaFiles(Array.from(e.target.files));
   };
@@ -279,7 +327,7 @@ const handleTypeChoose = (e) => {
         aria-hidden="true"
       >
         <div className="modal-dialog">
-          <div className="modal-content">
+          <div className="modal-content text-white">
             <div className="modal-header">
               <h5 className='modal-title' id="examinationModalLabel">{editingId ? 'Редактировать обследование' : 'Создать обследование'}</h5>
               <button
@@ -361,7 +409,7 @@ const handleTypeChoose = (e) => {
                     />
                     <input
                       type="hidden"
-                      name={`parameterValues[${idx}].parameterId`}
+                      name={`parameterValues[${idx}].parametersId`}
                       value={param.id}
                     />
                   </div>
@@ -371,17 +419,7 @@ const handleTypeChoose = (e) => {
                   <p className="text-muted">Нет параметров для выбранного типа</p>
                 )
               )}
-              <div className="form-group mb-3">
-                <label className="control-label">Фото и видео</label>
-                <input
-                  type="file"
-                  name="mediaFiles"
-                  className="form-control"
-                  multiple
-                  accept=".jpg,.jpeg,video/mp4"
-                  onChange={handleMediaFilesChange}
-                />
-              </div>
+              <MediaUploadComponent examinationId={editingId}/>
             </div>
 
             <div className="modal-footer">
@@ -407,26 +445,16 @@ const handleTypeChoose = (e) => {
                   formData.append('userFullname', userName);
                   parameterValues.forEach((pv, index) => {
                     formData.append(
-                      `parameterValues[${index}].parameterId`,
-                      pv.parameterId
-                    );
-                    formData.append(
-                      `parameterValues[${index}].value`,
+                      `parameterValues[${index}].body`,
                       pv.value
                     );
-                  });
-
-                  mediaFiles.forEach(file => {
-                    formData.append('mediaFiles', file);
                   });
 
                   if (editingId) {
                     setUpdating(true);
                     try {
-                      const response = await updateExamination(editingId, formData);
-                      console.log(response);
-                      console.log(formData);
-
+                      await updateExamination(editingId, formData);
+                      await handleSave();
                       setUpdating(false);
                       resetForm();
                     } catch (e) {
@@ -436,7 +464,10 @@ const handleTypeChoose = (e) => {
                   } else {
                     setCreating(true);
                     try {
-                      await saveExamination(formData);
+                      const response = await saveExamination(formData);
+                      console.log(response);
+                      setEditingId(response.id);
+                      await handleSave();
                       setCreating(false);
                       resetForm();
                     } catch (e) {
@@ -463,6 +494,24 @@ const handleTypeChoose = (e) => {
     <div className="row g-3">
       <div className="col-12 col-md-4 col-lg-2">
         <FontAwesomeIcon icon={faList} /> Список обследований
+      </div>
+      <div className="col-12 col-md-8 col-lg-2">
+        <h6>Поиск</h6>
+        <InputGroup size="sm">
+          <FormControl
+            placeholder="По описанию"
+            value={state.search}
+            
+            className="info-border bg-dark text-white"
+            onChange={handleSearchChange}
+          />
+          <Button variant="outline-dark" className="no-hover-effect" onClick={() => getExaminations(1)} >
+            <FontAwesomeIcon icon={faSearch} />
+          </Button>
+          <Button variant="outline-dark" className="no-hover-effect" onClick={handleCancelSearch}>
+            <FontAwesomeIcon icon={faTimes} />
+          </Button>
+        </InputGroup>
       </div>
       <div className="col-6 col-md-4 col-lg-2">
         <h6>Начало</h6>
@@ -501,23 +550,6 @@ const handleTypeChoose = (e) => {
             </option>
           ))}
         </FormControl>
-      </div>
-      <div className="col-12 col-md-8 col-lg-2">
-        <h6>Поиск</h6>
-        <InputGroup size="sm">
-          <FormControl
-            placeholder="По описанию"
-            value={state.search}
-            className="info-border bg-dark text-white"
-            onChange={handleSearchChange}
-          />
-          <Button variant="outline-info" onClick={() => getExaminations(1)}>
-            <FontAwesomeIcon icon={faSearch} />
-          </Button>
-          <Button variant="outline-danger" onClick={handleCancelSearch}>
-            <FontAwesomeIcon icon={faTimes} />
-          </Button>
-        </InputGroup>
       </div>
     </div>
   </div>

@@ -158,7 +158,7 @@ const resetForm = () => {
         aria-hidden="true"
       >
         <div className="modal-dialog">
-          <div className="modal-content">
+          <div className="modal-content text-white">
             <div className="modal-header">
               <h5 className='modal-title' id="examinationTypeModalLabel">{editingId ? 'Редактировать тип обследования' : 'Создать тип обследования'}</h5>
               <button
@@ -245,10 +245,10 @@ const resetForm = () => {
             className="info-border bg-dark text-white"
             onChange={handleSearchChange}
           />
-          <Button variant="outline-info" onClick={() => getExaminationTypes(1)}>
+          <Button variant="outline-dark" className="no-hover-effect" onClick={() => getExaminationTypes(1)}>
             <FontAwesomeIcon icon={faSearch} />
           </Button>
-          <Button variant="outline-danger" onClick={handleCancelSearch}>
+          <Button variant="outline-dark" className="no-hover-effect" onClick={handleCancelSearch}>
             <FontAwesomeIcon icon={faTimes} />
           </Button>
         </InputGroup>
@@ -279,7 +279,7 @@ const resetForm = () => {
                     <tr key={examinationType.id}>
                       <td>{examinationType.name}</td>
                       <td>
-                        <ButtonGroup className="justify-content-between">
+                        <ButtonGroup className="gap-4">
                           <Button
                             size="sm"
                             onClick={() => handletEditClick(examinationType)}

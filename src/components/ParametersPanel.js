@@ -188,8 +188,8 @@ useEffect(() => {
         aria-labelledby="parameterModalLabel"
         aria-hidden="true"
       >
-        <div className="modal-dialog">
-          <div className="modal-content">
+        <div className="modal-dialog ">
+          <div className="modal-content text-white">
             <div className="modal-header">
               <h5 className='modal-title' id="parameterModalLabel">{editingId ? 'Редактировать параметер' : 'Создать тип параметер'}</h5>
               <button
@@ -294,10 +294,10 @@ useEffect(() => {
             className="info-border bg-dark text-white"
             onChange={handleSearchChange}
           />
-          <Button variant="outline-info" onClick={() => getParameters(1)}>
+          <Button variant="outline-dark" className="no-hover-effect" onClick={() => getParameters(1)}>
             <FontAwesomeIcon icon={faSearch} />
           </Button>
-          <Button variant="outline-danger" onClick={handleCancelSearch}>
+          <Button variant="outline-dark" className="no-hover-effect" onClick={handleCancelSearch}>
             <FontAwesomeIcon icon={faTimes} />
           </Button>
         </InputGroup>
