@@ -12,6 +12,9 @@ import AdminHome from './AdminHome';
 import EmailAuth from './EmailAuth';
 import UserHome from './UserHome';
 import ExaminationPanel from './ExaminationPanel';
+import ExaminationTypePanel from './ExaminationTypePanel';
+import ParametersPanel from './ParametersPanel';
+import UserPanel from './UserPanel';
 
 export default function AppContent() {
 
@@ -84,6 +87,9 @@ export default function AppContent() {
         {view === "emailAuth" && role === "ADMIN" && <EmailAuth/>}
         {view === "adminHome" && role === "ADMIN" && <AdminHome/>}
         {view === "examinationPanel" && role === "ADMIN" && <ExaminationPanel/>}
+        {view === "examinationTypePanel" && role === "ADMIN" && <ExaminationTypePanel/>}
+        {view === "parametersPanel" && role === "ADMIN" && <ParametersPanel/>}
+        {view === "userPanel" && role === "ADMIN" && <UserPanel/>}
       </>
     );
 }

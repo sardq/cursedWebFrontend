@@ -1,5 +1,5 @@
 import './App.css'
-import React, { useState, useEffect, useCallback, useContext, useRef  } from 'react';
+import React, { useState, useEffect, useCallback, useRef  } from 'react';
 import CalendarComp from './CalendarComp';
 import MyToast from './MyToast';
 import axios from 'axios';
@@ -24,7 +24,6 @@ import {
   faSearch,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-import { AuthContent } from './AuthContent';
 import { Modal } from 'bootstrap';
 
 const ExaminationPanel = () => {
@@ -174,7 +173,10 @@ const handelDeleteExamination = async (examinationId) => {
     setUserId(examination.userId);
     openModal();
   }
-  
+  const handletCreateClick = () => {
+    openModal();
+  }
+
 const openModal = () => {
     if (modalRef.current) {
       getExaminations()
@@ -582,6 +584,15 @@ const handleTypeChoose = (e) => {
           <Card.Footer className="d-flex justify-content-between align-items-center">
             <div>
               Страница {state.currentPage} из {state.totalPages}
+            </div>
+            <div>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handletCreateClick}
+              >
+                Создать новое обледование
+              </button>
             </div>
             <div>
               <InputGroup size="sm">

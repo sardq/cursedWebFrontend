@@ -27,21 +27,9 @@ const AuthSelection = () => {
     <div className="col-sm-6 col-lg-4">
       <div className="card bg-dark text-white border-info h-100">
         <div className="card-body d-flex flex-column justify-content-between">
-          <h5 className="card-title">Создать обследование</h5>
-          <p className="card-text">Добавление нового обследования и прикрепление к пациенту.</p>
-          <button className="btn btn-outline-info mt-auto" onClick={() => setView('managerCourses')}>
-            Перейти
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div className="col-sm-6 col-lg-4">
-      <div className="card bg-dark text-white border-info h-100">
-        <div className="card-body d-flex flex-column justify-content-between">
           <h5 className="card-title">Пользователи</h5>
           <p className="card-text">Управление сотрудниками и пациентами.</p>
-          <button className="btn btn-outline-info mt-auto" onClick={() => setView('usersControl')}>
+          <button className="btn btn-outline-info mt-auto" onClick={() => setView('userPanel')}>
             Перейти
           </button>
         </div>
@@ -51,9 +39,9 @@ const AuthSelection = () => {
     <div className="col-sm-6 col-lg-4">
       <div className="card bg-dark text-white border-info h-100">
         <div className="card-body d-flex flex-column justify-content-between">
-          <h5 className="card-title">Типы обследований</h5>
-          <p className="card-text">Редактирование и настройка типов обследований.</p>
-          <button className="btn btn-outline-info mt-auto" onClick={() => setView('typeControl')}>
+          <h5 className="card-title">Список типов обследований</h5>
+          <p className="card-text">Просмотр, фильтрация и управление типами обследованиями.</p>
+          <button className="btn btn-outline-info mt-auto" onClick={() => setView('examinationTypePanel')}>
             Перейти
           </button>
         </div>
@@ -66,6 +54,18 @@ const AuthSelection = () => {
           <h5 className="card-title">Статистика</h5>
           <p className="card-text">Анализ и статистика по обследованиям за выбранный период.</p>
           <button className="btn btn-outline-info mt-auto" onClick={() => setView('statistics')}>
+            Перейти
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div className="col-sm-6 col-lg-4">
+      <div className="card bg-dark text-white border-info h-100">
+        <div className="card-body d-flex flex-column justify-content-between">
+          <h5 className="card-title">Список параметров</h5>
+          <p className="card-text">Просмотр, фильтрация и управление параметрами.</p>
+          <button className="btn btn-outline-info mt-auto" onClick={() => setView('parametersPanel')}>
             Перейти
           </button>
         </div>

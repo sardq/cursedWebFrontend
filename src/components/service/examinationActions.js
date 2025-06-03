@@ -10,16 +10,6 @@ export const saveExamination = async (description, conclusion, time, userId, exa
     throw error;
   }
 };
-
-export const fetchExaminations = async (userId = 0, page = 0) => {
-  try {
-    const response = await axios.get(`${BASE_URL}?userId=${userId}&page=${page}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
 export const updateExamination = async (id, formData) => {
   try {
     const response = await axios.post(`${BASE_URL}/edit/${id}`, formData);

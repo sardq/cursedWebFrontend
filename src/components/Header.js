@@ -13,7 +13,8 @@ export default function Header({ pageTitle, logoSrc }) {
         <h1 className="App-title ml-3">{pageTitle}</h1>
       </div>
 
-      {role === 'ADMIN' && email === null && (
+      {/* {role === 'ADMIN' && email === null && ( */}
+        {role === 'ADMIN' && (
         <nav>
             <button
             className="btn m-2 bg-transparent"
@@ -23,27 +24,27 @@ export default function Header({ pageTitle, logoSrc }) {
           </button>
           <button
             className="btn m-2 bg-transparent"
-            onClick={() => setView('usersControl')}
+            onClick={() => setView('userPanel')}
           >
             Пользователи
           </button>
           <button
             className="btn m-2 bg-transparent"
-            onClick={() => setView('examinationControl')}
+            onClick={() => setView('examinationPanel')}
             >
            Обследования
           </button>
           <button
             className="btn m-2 bg-transparent"
-            onClick={() => setView('typeControl')}
+            onClick={() => setView('examinationTypePanel')}
             >
             Типы обследования
           </button>
           <button
             className="btn m-2 bg-transparent"
-            onClick={() => setView('managerCourses')}
+            onClick={() => setView('parametersPanel')}
             >
-            Создание обследования
+            Параметры
           </button>
         </nav>
       )}

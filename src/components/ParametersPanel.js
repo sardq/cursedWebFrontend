@@ -2,7 +2,7 @@ import './App.css'
 import React, { useState, useEffect, useCallback, useRef  } from 'react';
 import MyToast from './MyToast';
 import axios from 'axios';
-import { deleteExaminationType, saveExaminationType, updateExaminationType } from './service/examinationTypeActions';
+import { deleteParameters, saveParameters, updateParameters } from './service/parameterActions';
 import {
   Card,
   Table,
@@ -25,10 +25,15 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Modal } from 'bootstrap';
 
-const ExaminationPanel = () => {
+const ParametersPanel = () => {
 
 
   const [name, setName] = useState('');
+  const [typeName, setTypeName] = useState('');
+  const [modalTypeName, setModalTypeName] = useState('');
+  const [typeId, setTypeId] = useState(null);
+
+  const [typeOptions, setTypeOptions] = useState([]);
 
   const [editingId, setEditingId] = useState(null);
   const [creating, setCreating] = useState(false);
@@ -39,49 +44,50 @@ const ExaminationPanel = () => {
   const modalInstanceRef = useRef(null);
 
   const [state, setState] = useState({
-    examinationTypes: [],
+    parameters: [],
     search: "",
     currentPage: 1,
-    examinationTypesPerPage: 5,
+    parametersPerPage: 5,
     sortDir: "asc",
     totalPages: 0,
     totalElements: 0,
   });
   
-  const getExaminationTypes = useCallback(async (page) => {
+  const getParameters = useCallback(async (page) => {
   try {
     const pageNumber = page - 1;
 
     const params = {
     page: pageNumber,
     name: state.search,
-    pageSize: state.examinationTypesPerPage,
+    typeName: typeName,
+    pageSize: state.parametersPerPage,
   };
 
-    const response = await axios.get("http://localhost:8080/api/examinationType/filter", { params });
+    const response = await axios.get("http://localhost:8080/api/parametres/filter", { params });
     const data = response.data;
     setState(prev => ({
       ...prev,
-      examinationTypes: data.content,
+      parameters: data.content,
       totalPages: data.totalPages,
       totalElements: data.totalElements,
       currentPage: data.number + 1,
     }));
   } catch (error) {
-    console.error("Ошибка при загрузке обследований:", error);
+    console.error("Ошибка при загрузке параметров:", error);
     localStorage.removeItem("jwtToken");
   }
-}, [state.search, state.examinationTypesPerPage]);
+}, [state.search, state.parametersPerPage, typeName]);
 
 useEffect(() => {
-    getExaminationTypes(state.currentPage);
+    getParameters(state.currentPage);
     if (modalRef.current && !modalInstanceRef.current) {
       modalInstanceRef.current = new Modal(modalRef.current, {
         backdrop: 'static',
         keyboard: true
       });
     }
-  }, [getExaminationTypes, state.currentPage]);
+  }, [getParameters, state.currentPage]);
 
   const handleSearchChange = (e) => {
     setState(prev => ({ ...prev, search: e.target.value }));
@@ -89,32 +95,32 @@ useEffect(() => {
 
   const handleCancelSearch = () => {
     setState(prev => ({ ...prev, search: "" }));
-    getExaminationTypes(1);
+    getParameters(1);
   };
 
   const paginationActions = {
-    firstPage: () => getExaminationTypes(1),
-    prevPage: () => getExaminationTypes(state.currentPage - 1),
-    nextPage: () => getExaminationTypes(state.currentPage + 1),
-    lastPage: () => getExaminationTypes(state.totalPages),
+    firstPage: () => getParameters(1),
+    prevPage: () => getParameters(state.currentPage - 1),
+    nextPage: () => getParameters(state.currentPage + 1),
+    lastPage: () => getParameters(state.totalPages),
   };
 
   const isFirstPage = state.currentPage === 1;
   const isLastPage = state.currentPage === state.totalPages;
 
-const handelDeleteExaminationType = async (examinationId) => {
+const handelDeleteParameters = async (examinationId) => {
     try {
-      await deleteExaminationType(examinationId);
+      await deleteParameters(examinationId);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);      
-      await getExaminationTypes(state.currentPage);
+      await getParameters(state.currentPage);
     } catch (error) {
       console.error("Ошибка при удалении:", error);
     }
   };
-  const handletEditClick = (examinationType) => {
-    setEditingId(examinationType.id);
-    setName(examinationType.name);
+  const handletEditClick = (parameters) => {
+    setEditingId(parameters.id);
+    setName(parameters.name);
     openModal();
   }
   const handletCreateClick = () => {
@@ -123,7 +129,7 @@ const handelDeleteExaminationType = async (examinationId) => {
 
 const openModal = () => {
     if (modalRef.current) {
-      getExaminationTypes()
+      getParameters()
       modalInstanceRef.current = new Modal(modalRef.current, { backdrop: 'static',
         keyboard: true});
       modalInstanceRef.current.show();
@@ -136,31 +142,56 @@ const resetForm = () => {
     setCreating(false);
     setUpdating(false);
     setName('');
+    setModalTypeName('');
+    setTypeId(null);
     closeModal();
-    getExaminationTypes(1);
+    getParameters(1);
   };
+
+  const handleTypeChoose = (e) => {
+    const selectedType = e.target.value;
+    const selectedId = typeOptions.find(t => t.name === selectedType);
+    
+    setTypeId(selectedId?.id ?? null);
+    setModalTypeName(selectedType);
+  };
+useEffect(() => {
+  const fetchTypesAndUsers = async () => {
+    try {
+      const params = {
+    page: 0,
+    size: 20,
+  };
+      const response = await axios.get("http://localhost:8080/api/examinationType", {params});
+      setTypeOptions(response.data.content);
+    } catch (error) {
+      console.error("Ошибка загрузки типов:", error);
+    }
+  };
+  fetchTypesAndUsers();
+}, []);
 
   return (
    <div className="main-content">
      <div style={{ display: showToast ? "block" : "none" }}>
           <MyToast
             show={showToast}
-            message={"Тип обследования успешно удален."}
+            message={"Параметр успешно удален."}
             type={"danger"}
           />
       </div>
       <div
         className="modal fade"
         ref={modalRef}
-        id="examinationTypeModal"
+        id="parameterModal"
         tabIndex="-1"
-        aria-labelledby="examinationTypeModalLabel"
+        aria-labelledby="parameterModalLabel"
         aria-hidden="true"
       >
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className='modal-title' id="examinationTypeModalLabel">{editingId ? 'Редактировать тип обследования' : 'Создать тип обследования'}</h5>
+              <h5 className='modal-title' id="parameterModalLabel">{editingId ? 'Редактировать параметер' : 'Создать тип параметер'}</h5>
               <button
                 type="button"
                 className="btn-close"
@@ -179,6 +210,23 @@ const resetForm = () => {
                     onChange={e => setName(e.target.value)}
                   />
                 </div>
+                <div className="mb-3">
+                  <label htmlFor="examinationType" className="form-label">Тип обследования</label>
+                    <FormControl
+                      id="examinationType"
+                      className="form-control"
+                      as = "select"
+                      value={modalTypeName}
+                      onChange={e => handleTypeChoose(e)}
+                      >
+                      <option value="">-- Выберите тип обследования --</option>
+                      {typeOptions.map(t => (
+                      <option key={t.id} value={t.name}>
+                      {t.name}
+                      </option>
+                      ))}
+                      </FormControl>
+                    </div>
             <div className="modal-footer">
               <button
                 type="button"
@@ -194,11 +242,12 @@ const resetForm = () => {
                 onClick={async () => {
                   const formData = new FormData();
                   formData.append('name', name);
-
+                  formData.append('examinationTypeId', typeId);
+                  formData.append('examinationTypeName', modalTypeName);
                   if (editingId) {
                     setUpdating(true);
                     try {
-                      await updateExaminationType(editingId, formData);
+                      await updateParameters(editingId, formData);
                       setUpdating(false);
                       resetForm();
                     } catch (e) {
@@ -208,7 +257,7 @@ const resetForm = () => {
                   } else {
                     setCreating(true);
                     try {
-                      await saveExaminationType(formData);
+                      await saveParameters(formData);
                       setCreating(false);
                       resetForm();
                     } catch (e) {
@@ -234,7 +283,7 @@ const resetForm = () => {
       <div className="container-fluid">
     <div className="row g-3">
       <div className="col-12 col-md-4 col-lg-2">
-        <FontAwesomeIcon icon={faList} /> Список типов обследований
+        <FontAwesomeIcon icon={faList} /> Список параметров
       </div>
       <div className="col-12 col-md-8 col-lg-2">
         <h6>Поиск</h6>
@@ -245,7 +294,7 @@ const resetForm = () => {
             className="info-border bg-dark text-white"
             onChange={handleSearchChange}
           />
-          <Button variant="outline-info" onClick={() => getExaminationTypes(1)}>
+          <Button variant="outline-info" onClick={() => getParameters(1)}>
             <FontAwesomeIcon icon={faSearch} />
           </Button>
           <Button variant="outline-danger" onClick={handleCancelSearch}>
@@ -253,6 +302,23 @@ const resetForm = () => {
           </Button>
         </InputGroup>
       </div>
+      <div className="col-6 col-md-4 col-lg-2">
+              <h6>Тип обследования</h6>
+              <FormControl
+                size ="sm"
+                as="select"
+                className="info-border bg-dark text-white"
+                value={typeName}
+                onChange={(e) => setTypeName(e.target.value)}
+              >
+                <option value="">Все</option>
+                {typeOptions.map(type => (
+                  <option key={type.id} value={type.name}>
+                    {type.name}
+                  </option>
+                ))}
+              </FormControl>
+            </div>
     </div>
   </div>
 </Card.Header>
@@ -260,36 +326,39 @@ const resetForm = () => {
         <Card.Body style={{ overflowY: 'auto', flex: '1 1 auto', minHeight: 0 }}>
           <Table bordered hover striped variant="dark" style = {{ tableLayout: "fixed", width: "100%" }}>
   < colgroup>
-    <col style={{ width: "80%" }} /> 
+    <col style={{ width: "40%" }} /> 
+    <col style={{ width: "40%" }} /> 
     <col style={{ width: "20%" }} /> 
   </colgroup>
               <thead>
                 <tr>
                   <th>Название</th>
+                  <th>Тип обследования</th>
                   <th>Действия</th>
                 </tr>
               </thead>
               <tbody>
-                {state?.examinationTypes?.length === 0 ? (
+                {state?.parameters?.length === 0 ? (
                   <tr align="center">
-                    <td colSpan="7">Нет доступных типов обследований.</td>
+                    <td colSpan="7">Нет доступных параметров.</td>
                   </tr>
                 ) : (
-                  state?.examinationTypes?.map((examinationType) => (
-                    <tr key={examinationType.id}>
-                      <td>{examinationType.name}</td>
+                  state?.parameters?.map((parameters) => (
+                    <tr key={parameters.id}>
+                      <td>{parameters.name}</td>
+                      <td>{parameters.examinationTypeName}</td>
                       <td>
                         <ButtonGroup className="justify-content-between">
                           <Button
                             size="sm"
-                            onClick={() => handletEditClick(examinationType)}
+                            onClick={() => handletEditClick(parameters)}
                           >
                           <FontAwesomeIcon icon={faEdit} />
                           </Button>
                           <Button
                             size="sm"
                             variant="outline-danger"
-                            onClick={() => handelDeleteExaminationType (examinationType.id)}
+                            onClick={() => handelDeleteParameters (parameters.id)}
                           >
                             <FontAwesomeIcon icon={faTrash} />
                           </Button>
@@ -302,7 +371,7 @@ const resetForm = () => {
               </Table>
       </Card.Body>
 
-        {state?.examinationTypes?.length > 0 && (
+        {state?.parameters?.length > 0 && (
           <Card.Footer className="d-flex justify-content-between align-items-center">
             <div>
               Страница {state.currentPage} из {state.totalPages}
@@ -356,4 +425,4 @@ const resetForm = () => {
   );
 };
 
-export default ExaminationPanel;
+export default ParametersPanel;
