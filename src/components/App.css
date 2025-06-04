@@ -194,3 +194,8 @@ body {
   color: inherit !important;
   border-color: #212529 !important;
 }
+.media-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

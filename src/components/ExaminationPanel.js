@@ -98,7 +98,7 @@ const formatToLocalDate = (date) => {
     localStorage.removeItem("jwtToken");
   }
 }, [state.search, state.sortDir, state.examinationsPerPage, dateStart, dateEnd, typeName]);
-
+  const mediaRef = useRef();
   const handleSort = () => {
     setState(prev => ({ 
       ...prev, 
@@ -203,7 +203,8 @@ const openModal = () => {
     });
   };
 const handleSave = async () => {
-  console.log(parameterValues);
+
+   await mediaRef.current?.handleSave();
   for (const param of parameterValues) {
     const parameterName = parameters.find(p => p.id === param.parametersId)?.name;
 
@@ -419,7 +420,7 @@ const handleTypeChoose = (e) => {
                   <p className="text-muted">Нет параметров для выбранного типа</p>
                 )
               )}
-              <MediaUploadComponent examinationId={editingId}/>
+              <MediaUploadComponent ref={mediaRef} examinationId={editingId} isModalOpen={editingId ? true : false}/>
             </div>
 
             <div className="modal-footer">
