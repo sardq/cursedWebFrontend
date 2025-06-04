@@ -30,33 +30,35 @@ const CalendarComp = ({ value, onChange }) => {
   };
 
   return (
-    <div className="calendarWrap" style={{ position: 'relative' }}>
-      <input
-        value={format(value, 'yyyy-MM-dd')}
-        readOnly
-        className="inputBox"
-        onClick={() => setOpen(!open)}
-        style={{ cursor: 'pointer' }}
+    <div className="calendarWrap" style={{ position: 'relative', zIndex: 1000 }}>
+  <input
+    value={format(value, 'yyyy-MM-dd')}
+    readOnly
+    className="inputBox"
+    onClick={() => setOpen(!open)}
+    style={{ cursor: 'pointer' }}
+  />
+  {open && (
+    <div 
+      ref={refOne}
+      style={{
+        position: 'absolute',
+        top: '100%',
+        left: 0,
+        zIndex: 2000, 
+        background: 'white',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+        marginTop: '8px'
+      }}
+    >
+      <Calendar
+        date={value}
+        onChange={handleSelect}
+        className="calendarElement"
       />
-      {open && (
-        <div 
-          ref={refOne}
-          style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            zIndex: 999,
-            marginTop: '8px'
-          }}
-        >
-          <Calendar
-            date={value}
-            onChange={handleSelect}
-            className="calendarElement"
-          />
-        </div>
-      )}
     </div>
+  )}
+</div>
   );
 };
 

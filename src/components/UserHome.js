@@ -1,4 +1,5 @@
 import './App.css'
+import ExaminationFullModal from './ExaminationInfo';
 import React, { useState, useEffect, useCallback, useContext  } from 'react';
 import ExaminationDescribe from './ExaminationDescribe';
 import CalendarComp from './CalendarComp';
@@ -9,6 +10,7 @@ import {
   InputGroup,
   FormControl,
 } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faList,
@@ -23,6 +25,8 @@ import { AuthContent } from './AuthContent';
 
 const UserHome = () => {
   const { email } = useContext(AuthContent);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [selectedExaminationId, setSelectedExaminationId] = useState(null);
   const [dateStart, setStartDate] = useState(new Date());
   const [dateEnd, setEndDate] = useState(new Date());
   const [typeName, setTypeName] = useState("");
@@ -37,11 +41,98 @@ const UserHome = () => {
     totalElements: 0,
   });
 
+const [fullModalData, setFullModalData] = useState({
+  show: false,
+  examination: null,
+  parameters: [],
+  media: [],
+});
+const openFullExaminationModal = async (id) => {
+  try {
+    const examResp = await axios.get(`/api/examination/${id}`);
+    const exam = examResp.data;
+    const paramDefs = await axios.get(`/api/parametres/GetParametersByTypeId`, { params: { examinationTypeId: exam.examinationTypeId } });
+    const paramVals = await axios.get(`/api/protocolParametres`, { params: { examinationTypeId:exam.examinationTypeId } });
+    const mediaResp = await axios.get(`/api/media`, { params: { examinationId:id } });
+
+    const valueMap = new Map(paramVals.data.map(pv => [pv.parametersId, pv.body]));
+    const combinedParams = paramDefs.data.content.map(p => ({
+      id: p.id,
+      name: p.name,
+      value: valueMap.get(p.id) || ''
+    }));
+
+    
+    setFullModalData({
+      show: true,
+      examination: exam,
+      parameters: combinedParams,
+      media: mediaResp.data
+    });
+    console.log(fullModalData);
+  } catch (error) {
+    console.error("Ошибка загрузки данных обследования:", error);
+  }
+};
+
 const formatToLocalDate = (date) => {
   const d = new Date(date);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
   
+const downloadReport = async (id) => {
+    
+    try {
+const examResp = await axios.get(`/api/examination/${id}`);
+    const exam = examResp.data;
+    const paramDefs = await axios.get(`/api/parametres/GetParametersByTypeId`, { params: { examinationTypeId: exam.examinationTypeId } });
+    const paramVals = await axios.get(`/api/protocolParametres`, { params: { examinationTypeId:exam.examinationTypeId } });
+    const mediaResp = await axios.get(`/api/media`, { params: { examinationId:id } });
+
+    const valueMap = new Map(paramVals.data.map(pv => [pv.parametersId, pv.body]));
+    const combinedParams = paramDefs.data.content.map(p => ({
+      name: p.name,
+      value: valueMap.get(p.id) || ''
+    }));
+    const params = {
+      id: exam.id,
+      description: exam.description,
+      conclusion: exam.conclusion,
+      time: formatToLocalDate(exam.time),
+      patientFullName: exam.userFullname,
+      examinationTypeName: exam.examinationTypeName,
+      parameters: combinedParams,
+      mediaFiles: mediaResp.data
+    }
+    console.log(params);
+      await axios.post('/api/protocol/pdf', {
+      id: exam.id,
+      description: exam.description,
+      conclusion: exam.conclusion,
+      time: formatToLocalDate(exam.time),
+      patientFullName: exam.userFullname,
+      examinationTypeName: exam.examinationTypeName,
+      parameters: combinedParams,
+      mediaFiles: mediaResp.data
+    });
+
+    const response = await axios.get(`/api/protocol/pdf/${id}`, {
+      responseType: 'blob',
+    });
+
+    const blob = new Blob([response.data], { type: "application/pdf" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `protocol_${id}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Ошибка при загрузке отчета:", error);
+  }
+};
 
   const getExaminations = useCallback(async (page) => {
   try {
@@ -60,8 +151,6 @@ const formatToLocalDate = (date) => {
 
     const response = await axios.get("http://localhost:8080/api/examination/filter", { params });
     const data = response.data;
-    console.log(data.content);
-    console.log(state.sortDir);
     setState(prev => ({
       ...prev,
       examinations: data.content,
@@ -126,8 +215,16 @@ useEffect(() => {
 
 
   return (
+    <div>
+      <ExaminationFullModal
+  show={fullModalData.show}
+  onHide={() => setFullModalData(prev => ({ ...prev, show: false }))}
+  examination={fullModalData.examination}
+  parameters={fullModalData.parameters}
+    media={fullModalData.media} onDownloadReport={downloadReport}
+  />
    <div className="main-content">
-      <Card className={"border border-dark bg-dark text-white"} style={{display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 0, overflow: 'hidden' }}>
+      <Card className={"border border-dark bg-dark text-white"} style={{display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 500, overflow: 'hidden' }}>
         <Card.Header className="bg-secondary text-white">
   <div className="container-fluid">
     <div className="row g-3">
@@ -195,7 +292,7 @@ useEffect(() => {
 
         <Card.Body style={{ overflowY: 'auto', flex: '1 1 auto', minHeight: 0 }}>
           {state.examinations.length === 0 ? (
-            <div className="text-center py-4 text-muted">
+            <div className="text-center py-4 text-white">
               Обследования не найдены
             </div>
           ) : (
@@ -203,9 +300,7 @@ useEffect(() => {
             {state.examinations.map((examination) => (
               <div key={examination.id} className="examination-item">
               <ExaminationDescribe
-                description={examination.description}
-                examinationType={examination.examinationTypeName}
-                time={examination.time}
+                examination={examination}  openFullExaminationModal ={openFullExaminationModal}
               />
               </div>
             ))}
@@ -254,6 +349,7 @@ useEffect(() => {
           </Card.Footer>
         )}
       </Card>
+    </div>
     </div>
   );
 };
