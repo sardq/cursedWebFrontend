@@ -33,9 +33,7 @@ const MediaItem = ({ media, onDelete }) => {
     };
   }, [media.id]);
 
-  if (loading) {
-    return <div className="m-2">Загрузка...</div>;
-  }
+  if (loading) return <div className="m-2">Загрузка...</div>;
 
   return (
     <div className="media-item m-2 text-center">
@@ -43,7 +41,7 @@ const MediaItem = ({ media, onDelete }) => {
         media.mimeType.includes('image') ? (
           <img src={mediaUrl} alt="" className="img-thumbnail" style={{ width: 200 }} />
         ) : media.mimeType.includes('video') ? (
-          <video controls style={{ width: 200}}>
+          <video controls style={{ width: 200 }}>
             <source src={mediaUrl} type={media.mimeType} />
           </video>
         ) : (
@@ -61,18 +59,16 @@ const MediaItem = ({ media, onDelete }) => {
 
 const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave }, ref) => {
   const [mediaList, setMediaList] = useState([]);
-  const [tempFiles, setTempFiles] = useState([]);
+  const [tempFiles, setTempFiles] = useState([]); 
   const [filesToUpload, setFilesToUpload] = useState([]);
   const [deletedMediaIds, setDeletedMediaIds] = useState([]);
   const [error, setError] = useState(null);
 
   const fetchMedia = useCallback(async () => {
     try {
-      const response = await axios.get('/api/media', {
-        params: { examinationId },
-      });
+      const response = await axios.get('/api/media', { params: { examinationId } });
       setMediaList(response.data || []);
-    } catch (err) {
+    } catch {
       setError('Ошибка при загрузке медиа');
     }
   }, [examinationId]);
@@ -83,7 +79,7 @@ const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave },
 
   useEffect(() => {
     if (!isModalOpen) {
-      tempFiles.forEach((file) => URL.revokeObjectURL(file.url));
+      tempFiles.forEach((f) => URL.revokeObjectURL(f.url));
       setTempFiles([]);
       setFilesToUpload([]);
       setDeletedMediaIds([]);
@@ -94,14 +90,21 @@ const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave },
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
-    const previews = files.map((file, i) => ({
-      tempId: `${file.name}-${i}-${Date.now()}`,
-      url: URL.createObjectURL(file),
-      type: file.type,
-    }));
+    const previews = files.map((file, i) => {
+      const tempId = `${file.name}-${i}-${Date.now()}`;
+      return {
+        tempId,
+        url: URL.createObjectURL(file),
+        type: file.type,
+        file,
+      };
+    });
 
     setTempFiles((prev) => [...prev, ...previews]);
-    setFilesToUpload((prev) => [...prev, ...files]);
+    setFilesToUpload((prev) => [
+      ...prev,
+      ...previews.map(({ tempId, file }) => ({ tempId, file })),
+    ]);
 
     e.target.value = '';
   };
@@ -113,22 +116,20 @@ const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave },
 
   const handleDeleteTemp = (tempId) => {
     setTempFiles((prev) => prev.filter((f) => f.tempId !== tempId));
-    setFilesToUpload((prev) =>
-      prev.filter((_, idx) => `${_.name}-${idx}-${Date.now()}` !== tempId)
-    );
+    setFilesToUpload((prev) => prev.filter((f) => f.tempId !== tempId));
   };
- useImperativeHandle(ref, () => ({
+
+  useImperativeHandle(ref, () => ({
     handleSave: async () => {
       try {
         if (filesToUpload.length) {
           const formData = new FormData();
-          filesToUpload.forEach((file) => formData.append('files', file));
+          filesToUpload.forEach(({ file }) => formData.append('files', file));
           formData.append('examinationId', examinationId);
 
-          const response = await axios.post('/api/media/load', formData, {
-  headers: {
-    'Content-Type': 'multipart/form-data' 
-  }});
+          await axios.post('/api/media/load', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
         }
 
         for (const mediaId of deletedMediaIds) {
@@ -139,7 +140,7 @@ const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave },
         setFilesToUpload([]);
         setDeletedMediaIds([]);
         await fetchMedia();
-      } catch (err) {
+      } catch {
         setError('Ошибка при сохранении медиа');
       }
     },
@@ -167,13 +168,13 @@ const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave },
               <img src={file.url} alt="temp" className="img-thumbnail" style={{ width: 200 }} />
             ) : file.type.includes('video') ? (
               <video controls style={{ width: 200 }}>
-                <source src={file.url} type={file.type} style={{ width: 200 }} />
+                <source src={file.url} type={file.type} />
               </video>
             ) : (
               <div>Неизвестный тип</div>
             )}
             <button
-              className="btn btn-sm btn-danger mt-2 p-3"
+              className="btn btn-sm btn-danger mt-2"
               onClick={() => handleDeleteTemp(file.tempId)}
             >
               Удалить

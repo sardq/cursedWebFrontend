@@ -116,10 +116,16 @@ const formatToLocalDate = (date) => {
     page: 0,
     size: 20,
   };
+  const userParams = {
+    role: "USER",
+    page: 0,
+    size: 20,
+  };
       const response = await axios.get("http://localhost:8080/api/examinationType", {params});
       setTypeOptions(response.data.content);
-      const responseUsers = await axios.get("http://localhost:8080/api/user", {params});
-      setUsers(responseUsers.data);
+      const responseUsers = await axios.get("http://localhost:8080/api/user/patients", { params: userParams});
+      console.log(responseUsers);
+      setUsers(responseUsers.data.content);
     } catch (error) {
       console.error("Ошибка загрузки типов или пользователей:", error);
     }

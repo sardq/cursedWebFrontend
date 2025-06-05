@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, Button } from "react-bootstrap";
+import MediaViewer from './MediaViewer';
 
 const ExaminationFullModal = ({ show, onHide, examination, parameters, media, onDownloadReport  }) => {
     if (!examination) return null;
@@ -32,19 +33,7 @@ const ExaminationFullModal = ({ show, onHide, examination, parameters, media, on
 
         <hr />
         <h5>Медиафайлы</h5>
-        {media.length > 0 ? (
-          <ul>
-            {media.map((file) => (
-              <li key={file.id}>
-                <a href={file.url} target="_blank" rel="noopener noreferrer">
-                  {file.originalName}
-                </a>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>Нет медиафайлов</p>
-        )}
+        <MediaViewer media={media} />
       </Modal.Body>
       <Modal.Footer>
         <Button variant="success" onClick={() => onDownloadReport(examination.id)}>Сохранить отчёт</Button>

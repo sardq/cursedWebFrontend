@@ -213,3 +213,9 @@ body {
   background: white;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
+.media-viewer video {
+  width: 200px !important;
+  height: auto !important;
+  object-fit: contain;
+  display: block;
+}
