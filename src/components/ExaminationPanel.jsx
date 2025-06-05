@@ -119,7 +119,7 @@ const formatToLocalDate = (date) => {
   const userParams = {
     role: "USER",
     page: 0,
-    size: 20,
+    pageSize: 20,
   };
       const response = await axios.get("http://localhost:8080/api/examinationType", {params});
       setTypeOptions(response.data.content);
@@ -396,7 +396,7 @@ const handleTypeChoose = (e) => {
                   >
                   <option value="">-- Выберите пациента --</option>
                   {users.map(user => (
-                    <option key={user.id} value={user.fullname}>
+                    <option key={user.id} value={user.id}>
                       {user.fullname}
                     </option>
                   ))}
@@ -426,7 +426,7 @@ const handleTypeChoose = (e) => {
                   <p className="text-muted">Нет параметров для выбранного типа</p>
                 )
               )}
-              <MediaUploadComponent ref={mediaRef} examinationId={editingId} isModalOpen={editingId ? true : false}/>
+              { editingId !== null && <MediaUploadComponent ref={mediaRef} examinationId={editingId} isModalOpen={editingId ? true : false}/>}
             </div>
 
             <div className="modal-footer">
