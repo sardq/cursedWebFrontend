@@ -1,6 +1,38 @@
 import React, { useContext } from 'react';
 import { AuthContent } from './AuthContent';
+const downloadLogFile = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
+    if (!token) {
+      alert("Пользователь не авторизован");
+      return;
+    }
+
+    const response = await fetch("http://localhost:8080/api/log/download", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Ошибка при загрузке лога");
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "application.log";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    alert("Не удалось загрузить лог");
+  }
+};
 const AuthSelection = () => {
     const {setView} = useContext(AuthContent);
   return (
@@ -71,6 +103,20 @@ const AuthSelection = () => {
         </div>
       </div>
     </div>
+    <div className="col-sm-6 col-lg-4">
+  <div className="card bg-dark text-white border-info h-100">
+    <div className="card-body d-flex flex-column justify-content-between">
+      <h5 className="card-title">Загрузка лога</h5>
+      <p className="card-text">Скачивание логов приложения.</p>
+      <button
+        className="btn btn-outline-info mt-auto"
+        onClick={ downloadLogFile}
+      >
+        Скачать лог
+      </button>
+    </div>
+  </div>
+</div>
   </div>
 </div>
   );

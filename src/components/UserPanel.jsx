@@ -1,5 +1,5 @@
 import './App.css'
-import React, { useState, useEffect, useCallback, useRef  } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useContext  } from 'react';
 import MyToast from './MyToast';
 import axios from 'axios';
 import { deleteUser } from './service/userActions';
@@ -23,10 +23,12 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { Modal } from 'bootstrap';
+import { getCurrentUserFromToken } from './service/jwtHelper';
+import { AuthContent } from './AuthContent';
 
 const UserPanel = () => {
 
-
+  const { email, setView } = useContext(AuthContent);
   const [showToast, setShowToast] = useState(false);
   const modalRef = useRef(null);
   const modalInstanceRef = useRef(null);
@@ -94,16 +96,26 @@ useEffect(() => {
   const isFirstPage = state.currentPage === 1;
   const isLastPage = state.currentPage === state.totalPages;
 
-const handelDeleteUser = async (examinationId) => {
-    try {
-      await deleteUser(examinationId);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);      
-      await getUsers(state.currentPage);
-    } catch (error) {
-      console.error("Ошибка при удалении:", error);
+const handelDeleteUser = async (userId) => {
+  try {
+    await deleteUser(userId);
+
+    const currentUser = getCurrentUserFromToken();
+    const currentUserEmail = currentUser?.sub;
+    if (currentUserEmail === email) {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("token");
+      setView("login")
+      return;
     }
-  };
+
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+    await getUsers(state.currentPage);
+  } catch (error) {
+    console.error("Ошибка при удалении:", error);
+  }
+};
 
   return (
    <div className="main-content">

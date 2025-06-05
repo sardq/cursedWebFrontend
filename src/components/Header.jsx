@@ -4,7 +4,11 @@ import { AuthContent } from './AuthContent';
 
 export default function Header({ pageTitle, logoSrc }) {
   const { role, setView, email } = useContext(AuthContent);
-
+  const logout = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("token");
+    setView('login')
+  }
   return (
     <header className="App-header d-flex justify-content-between align-items-center px-4">
       <div className="header-container">
@@ -52,15 +56,29 @@ export default function Header({ pageTitle, logoSrc }) {
             >
             Статистика
           </button>
+          <button
+            className="btn m-2 bg-transparent text-danger"
+            onClick={logout}
+            >
+            Выйти
+          </button>
         </nav>
       )}
       {role === "USER" && (
+        <nav>
         <button
             className="btn m-2 bg-transparent"
             onClick={() => setView('userHome')}
           >
             Главная
           </button>
+          <button
+            className="btn m-2 bg-transparent text-danger"
+            onClick={logout}
+            >
+            Выйти
+          </button>
+          </nav>
       )}
       </div>
     </header>
