@@ -52,11 +52,30 @@ const ParametersPanel = () => {
     totalPages: 0,
     totalElements: 0,
   });
-  
+  const [errors, setErrors] = useState({
+  name: '',
+  modalTypeName: ''
+});
+const validateForm = () => {
+  const newErrors = {};
+
+  if (!name.trim()) {
+    newErrors.name = 'Введите название параметра';
+  } else if (name.length < 3) {
+      newErrors.name = 'Название параметра должно быть не менее 3 символов';
+    } 
+
+  if (!modalTypeName) {
+    newErrors.modalTypeName = 'Выберите тип обследования';
+  }
+
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
   const getParameters = useCallback(async (page) => {
   try {
     const pageNumber = page - 1;
-
     const params = {
     page: pageNumber,
     name: state.search,
@@ -143,6 +162,7 @@ const resetForm = () => {
     setUpdating(false);
     setName('');
     setModalTypeName('');
+    setErrors({});
     setTypeId(null);
     closeModal();
     getParameters(1);
@@ -191,7 +211,7 @@ useEffect(() => {
         <div className="modal-dialog ">
           <div className="modal-content text-white">
             <div className="modal-header">
-              <h5 className='modal-title' id="parameterModalLabel">{editingId ? 'Редактировать параметер' : 'Создать тип параметер'}</h5>
+              <h5 className='modal-title' id="parameterModalLabel">{editingId ? 'Редактировать параметр' : 'Создать тип параметр'}</h5>
               <button
                 type="button"
                 className="btn-close"
@@ -205,10 +225,11 @@ useEffect(() => {
                   <input
                     type="text"
                     id="name"
-                    className="form-control"
+                    className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                     value={name}
                     onChange={e => setName(e.target.value)}
                   />
+                  {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                 </div>
                 <div className="mb-3">
                   <label htmlFor="examinationType" className="form-label">Тип обследования</label>
@@ -226,6 +247,9 @@ useEffect(() => {
                       </option>
                       ))}
                       </FormControl>
+                       {errors.modalTypeName && (
+                      <div className="invalid-feedback d-block">{errors.modalTypeName}</div>
+                       )}
                     </div>
             <div className="modal-footer">
               <button
@@ -240,6 +264,7 @@ useEffect(() => {
                 className="btn btn-primary"
                 disabled={creating || updating}
                 onClick={async () => {
+                  if (!validateForm()) return;
                   const formData = new FormData();
                   formData.append('name', name);
                   formData.append('examinationTypeId', typeId);
@@ -371,55 +396,58 @@ useEffect(() => {
               </Table>
       </Card.Body>
 
-        {state?.parameters?.length > 0 && (
-          <Card.Footer className="d-flex justify-content-between align-items-center">
-            <div>
-              Страница {state.currentPage} из {state.totalPages}
-            </div>
-            <div>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handletCreateClick}
-              >
-                Создать новый тип обследования
-              </button>
-            </div>
-            <div>
+        <Card.Footer className="d-flex justify-content-between align-items-center">
+          <div className="d-none d-md-block">
+            {state.totalPages > 0 && (
+              <>Страница {state.currentPage} из {state.totalPages}</>
+            )}
+          </div>
+        
+          <div className="text-center flex-grow-1">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handletCreateClick}
+            >
+              Создать новое обследование
+            </button>
+          </div>
+        
+          <div className="d-flex gap-1 justify-content-end">
+            {state.totalPages > 0 && (
               <InputGroup size="sm">
-                  <Button
-                    variant="outline-info"
-                    disabled={isFirstPage}
-                    onClick={paginationActions.firstPage}
-                  >
-                    <FontAwesomeIcon icon={faFastBackward} /> First
-                  </Button>
-                  <Button
-                    variant="outline-info"
-                    disabled={isFirstPage}
-                    onClick={paginationActions.prevPage}
-                  >
-                    <FontAwesomeIcon icon={faStepBackward} /> Prev
-                  </Button>
-                
-                  <Button
-                    variant="outline-info"
-                    disabled={isLastPage}
-                    onClick={paginationActions.nextPage}
-                  >
-                    <FontAwesomeIcon icon={faStepForward} /> Next
-                  </Button>
-                  <Button
-                    variant="outline-info"
-                    disabled={isLastPage}
-                    onClick={paginationActions.lastPage}
-                  >
-                    <FontAwesomeIcon icon={faFastForward} /> Last
-                  </Button>
+                <Button
+                  variant="outline-info"
+                  disabled={isFirstPage}
+                  onClick={paginationActions.firstPage}
+                >
+                  <FontAwesomeIcon icon={faFastBackward} /> First
+                </Button>
+                <Button
+                  variant="outline-info"
+                  disabled={isFirstPage}
+                  onClick={paginationActions.prevPage}
+                >
+                  <FontAwesomeIcon icon={faStepBackward} /> Prev
+                </Button>
+                <Button
+                  variant="outline-info"
+                  disabled={isLastPage}
+                  onClick={paginationActions.nextPage}
+                >
+                  <FontAwesomeIcon icon={faStepForward} /> Next
+                </Button>
+                <Button
+                  variant="outline-info"
+                  disabled={isLastPage}
+                  onClick={paginationActions.lastPage}
+                >
+                  <FontAwesomeIcon icon={faFastForward} /> Last
+                </Button>
               </InputGroup>
-            </div>
-          </Card.Footer>
-        )}
+            )}
+          </div>
+        </Card.Footer>
       </Card>
     </div>
   );

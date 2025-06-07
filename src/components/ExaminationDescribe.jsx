@@ -1,9 +1,5 @@
-import { useContext } from "react";
-import { AuthContent } from "./AuthContent";
-
 const ExaminationDescribe = ({examination, openFullExaminationModal}) => {
   
-  const {setView} = useContext(AuthContent)
   return (
     <div>
       <p>Описание: {examination.description}</p>

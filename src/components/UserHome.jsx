@@ -10,7 +10,6 @@ import {
   InputGroup,
   FormControl,
 } from "react-bootstrap";
-import { Modal } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faList,
@@ -22,15 +21,19 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { AuthContent } from './AuthContent';
+import MyToast from './MyToast';
 
 const UserHome = () => {
   const { email } = useContext(AuthContent);
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [selectedExaminationId, setSelectedExaminationId] = useState(null);
   const [dateStart, setStartDate] = useState(new Date());
   const [dateEnd, setEndDate] = useState(new Date());
   const [typeName, setTypeName] = useState("");
   const [typeOptions, setTypeOptions] = useState([]);
+
+  const [messsage, setMessage] = useState('');
+  const [header, setHeader] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
   const [state, setState] = useState({
     examinations: [],
     search: "",
@@ -74,7 +77,28 @@ const openFullExaminationModal = async (id) => {
     console.error("Ошибка загрузки данных обследования:", error);
   }
 };
+const handleStartDateChange = (date) => {
+  if (dateEnd && date > dateEnd) {
+      setHeader("Ошибка");
+      setMessage("Дата начала не может быть позже даты конца");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);      
+      return;
+  }
+   setStartDate(date);
+ };
 
+const handleEndDateChange = (date) => {
+  if (dateStart && date < dateStart) {
+    setHeader("Ошибка");
+    setMessage('Дата окончания не может быть раньше даты начала');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);  
+    return;    
+  }
+  setEndDate(date);
+
+};
 const formatToLocalDate = (date) => {
   const d = new Date(date);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -216,6 +240,14 @@ useEffect(() => {
 
   return (
     <div>
+      <div style={{ display: showToast ? "block" : "none" }}>
+                <MyToast
+                  show={showToast}
+                  header = {header}
+                  message={messsage}
+                  type={"danger"}
+                />
+            </div>
       <ExaminationFullModal
   show={fullModalData.show}
   onHide={() => setFullModalData(prev => ({ ...prev, show: false }))}
@@ -233,11 +265,11 @@ useEffect(() => {
       </div>
       <div className="col-6 col-md-4 col-lg-2">
         <h6>Начало</h6>
-        <CalendarComp value={dateStart} onChange={setStartDate} />
+        <CalendarComp value={dateStart} onChange={handleStartDateChange} />
       </div>
       <div className="col-6 col-md-4 col-lg-2">
         <h6>Конец</h6>
-        <CalendarComp value={dateEnd} onChange={setEndDate} />
+        <CalendarComp value={dateEnd} onChange={handleEndDateChange} />
       </div>
       <div className="col-6 col-md-4 col-lg-2">
         <h6>Сортировка</h6>

@@ -44,13 +44,15 @@ const ExaminationPanel = () => {
   const [userName, setUserName] = useState('');
   const [parameters, setParameters] = useState([]);
   const [parameterValues, setParameterValues] = useState([]);
-  const [mediaFiles, setMediaFiles] = useState([]);
 
   const [editingId, setEditingId] = useState(null);
   const [creating, setCreating] = useState(false);
   const [updating, setUpdating] = useState(false);
 
+  const [messsage, setMessage] = useState('');
+  const [header, setHeader] = useState('');
   const [showToast, setShowToast] = useState(false);
+
   const modalRef = useRef(null);
   const modalInstanceRef = useRef(null);
 
@@ -78,7 +80,7 @@ const formatToLocalDate = (date) => {
     page: pageNumber,
     description: state.search,
     pageSize: state.examinationsPerPage,
-    sortOrder: state.sortDir  === "asc" ? "Сначала старые" : "Сначала новые",
+    sortOrder: state.sortDir  === "desc" ? "Сначала старые" : "Сначала новые",
     dateStart: formatToLocalDate(dateStart),
     dateEnd: formatToLocalDate(dateEnd),
     typeName: typeName,
@@ -98,6 +100,69 @@ const formatToLocalDate = (date) => {
     localStorage.removeItem("jwtToken");
   }
 }, [state.search, state.sortDir, state.examinationsPerPage, dateStart, dateEnd, typeName]);
+const [errors, setErrors] = useState({
+  name: '',
+  modalTypeName: ''
+});
+const handleStartDateChange = (date) => {
+  if (dateEnd && date > dateEnd) {
+      setHeader("Ошибка");
+      setMessage("Дата начала не может быть позже даты конца");
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);      
+      return;
+  }
+   setStartDate(date);
+ };
+
+const handleEndDateChange = (date) => {
+  if (dateStart && date < dateStart) {
+    setHeader("Ошибка");
+    setMessage('Дата окончания не может быть раньше даты начала');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);  
+    return;    
+  }
+  setEndDate(date);
+
+};
+const validateForm = () => {
+  const newErrors = {};
+
+  if (!description.trim()) {
+    newErrors.description = 'Введите описание обследования';
+  } else if (description.length < 5) {
+      newErrors.description = 'Описание обследования должно быть не менее 5 символов';
+  } 
+  if (!conclusion.trim()) {
+    newErrors.conclusion = 'Введите заключение обследования';
+  } else if (conclusion.length < 5) {
+      newErrors.conclusion = 'Заключение обследования должно быть не менее 5 символов';
+  } 
+  if (!time) {
+  newErrors.time =("Дата обследования обязательна.");
+  }
+  if (!modalTypeName) {
+  newErrors.type =("Выберите тип обследования.");
+  }
+
+  if (!userName) {
+  newErrors.user = ("Выберите пациента.");
+  }
+  const paramErrors = [];
+  parameterValues.forEach((param, i) => {
+    if (!param.value || !param.value.trim()) {
+      paramErrors[i] = `Параметр №${i + 1} не заполнен`;
+    }
+  });
+  if (paramErrors.length > 0) {
+    newErrors.parameter = paramErrors;
+  }
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
+
   const mediaRef = useRef();
   const handleSort = () => {
     setState(prev => ({ 
@@ -164,6 +229,8 @@ useEffect(() => {
 const handelDeleteExamination = async (examinationId) => {
     try {
       await deleteExamination(examinationId);
+      setHeader("Успех");
+      setMessage("Обследование успешно удалено");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);      
       await getExaminations(state.currentPage);
@@ -245,7 +312,6 @@ const resetForm = () => {
     setUserId('');
     setParameters([]);
     setParameterValues([]);
-    setMediaFiles([]);
     closeModal();
     getExaminations(1);
   };
@@ -298,9 +364,6 @@ const resetForm = () => {
   fetchParamsAndValues();
 }, [examinationTypeId, editingId]);
 
-  const handleMediaFilesChange = (e) => {
-    setMediaFiles(Array.from(e.target.files));
-  };
 const handleTypeChoose = (e) => {
     const selectedType = e.target.value;
     const selectedId = typeOptions.find(t => t.name === selectedType);
@@ -321,7 +384,8 @@ const handleTypeChoose = (e) => {
      <div style={{ display: showToast ? "block" : "none" }}>
           <MyToast
             show={showToast}
-            message={"Обследование успешно удалено."}
+            header = {header}
+            message={messsage}
             type={"danger"}
           />
       </div>
@@ -350,23 +414,26 @@ const handleTypeChoose = (e) => {
                   <input
                     type="text"
                     id="description"
-                    className="form-control"
+                   className={`form-control ${errors.description ? 'is-invalid' : ''}`}
                     value={description}
                     onChange={e => setDescription(e.target.value)}
                   />
+                   {errors.description && <div className="invalid-feedback">{errors.description}</div>}
                 </div>
                 <div className="mb-3">
                   <label htmlFor="conclusion" className="form-label">Заключение</label>
                   <input
                      id="conclusion"
-                     className='form-control'
+                     className={`form-control ${errors.conclusion ? 'is-invalid' : ''}`}
                      value={conclusion}
                      onChange={e => setConclusion(e.target.value)}
                   />
+                   {errors.conclusion && <div className="invalid-feedback">{errors.conclusion}</div>}
                 </div>
                 <div className="mb-3">
                   <label htmlFor="time" className="form-label">Дата обследования</label>
                   <CalendarComp value={time} onChange={setTime} />
+                  {errors.time && <div className="invalid-feedback">{errors.time}</div>}
                 </div>
                 <div className="mb-3">
                   <label htmlFor="examinationType" className="form-label">Тип обследования</label>
@@ -384,6 +451,9 @@ const handleTypeChoose = (e) => {
                   </option>
                   ))}
                   </FormControl>
+                  {errors.type && (
+                      <div className="invalid-feedback d-block">{errors.type}</div>
+                  )}
                   </div>
                   <div className="mb-3">
                   <label htmlFor="userSelect" className="form-label">Пациент</label>
@@ -396,11 +466,14 @@ const handleTypeChoose = (e) => {
                   >
                   <option value="">-- Выберите пациента --</option>
                   {users.map(user => (
-                    <option key={user.id} value={user.id}>
+                    <option key={user.id} value={user.name}>
                       {user.fullname}
                     </option>
                   ))}
                   </FormControl>
+                  {errors.user && (
+                      <div className="invalid-feedback d-block">{errors.user}</div>
+                  )}
                   </div>  
                   {parameters.length > 0 ? (
                   parameters.map((param, idx) => (
@@ -408,12 +481,15 @@ const handleTypeChoose = (e) => {
                     <label>{param.name}</label>
                     <input
                       type="text"
-                      className="form-control"
+                      className={`form-control ${errors.parameter?.[idx] ? 'is-invalid' : ''}`}
                       value={parameterValues[idx]?.value || ''}
                       onChange={e => handleParamChange(idx, e.target.value)}
                       maxLength={10}
                       required
                     />
+                    {errors.parameter?.[idx] && (
+                    <div className="invalid-feedback">{errors.parameter[idx]}</div>
+                    )}
                     <input
                       type="hidden"
                       name={`parameterValues[${idx}].parametersId`}
@@ -442,6 +518,7 @@ const handleTypeChoose = (e) => {
                 className="btn btn-primary"
                 disabled={creating || updating}
                 onClick={async () => {
+                  if (!validateForm()) return;
                   const formData = new FormData();
                   formData.append('description', description);
                   formData.append('conclusion', conclusion);
@@ -522,11 +599,11 @@ const handleTypeChoose = (e) => {
       </div>
       <div className="col-6 col-md-4 col-lg-2">
         <h6>Начало</h6>
-        <CalendarComp value={dateStart} onChange={setStartDate} />
+        <CalendarComp value={dateStart} onChange={handleStartDateChange} />
       </div>
       <div className="col-6 col-md-4 col-lg-2">
         <h6>Конец</h6>
-        <CalendarComp value={dateEnd} onChange={setEndDate} />
+        <CalendarComp value={dateEnd} onChange={handleEndDateChange} />
       </div>
       <div className="col-6 col-md-4 col-lg-2">
         <h6>Сортировка</h6>
@@ -619,55 +696,58 @@ const handleTypeChoose = (e) => {
               </Table>
       </Card.Body>
 
-        {state?.examinations?.length > 0 && (
-          <Card.Footer className="d-flex justify-content-between align-items-center">
-            <div>
-              Страница {state.currentPage} из {state.totalPages}
-            </div>
-            <div>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handletCreateClick}
-              >
-                Создать новое обледование
-              </button>
-            </div>
-            <div>
-              <InputGroup size="sm">
-                  <Button
-                    variant="outline-info"
-                    disabled={isFirstPage}
-                    onClick={paginationActions.firstPage}
-                  >
-                    <FontAwesomeIcon icon={faFastBackward} /> First
-                  </Button>
-                  <Button
-                    variant="outline-info"
-                    disabled={isFirstPage}
-                    onClick={paginationActions.prevPage}
-                  >
-                    <FontAwesomeIcon icon={faStepBackward} /> Prev
-                  </Button>
-                
-                  <Button
-                    variant="outline-info"
-                    disabled={isLastPage}
-                    onClick={paginationActions.nextPage}
-                  >
-                    <FontAwesomeIcon icon={faStepForward} /> Next
-                  </Button>
-                  <Button
-                    variant="outline-info"
-                    disabled={isLastPage}
-                    onClick={paginationActions.lastPage}
-                  >
-                    <FontAwesomeIcon icon={faFastForward} /> Last
-                  </Button>
-              </InputGroup>
-            </div>
-          </Card.Footer>
-        )}
+        <Card.Footer className="d-flex justify-content-between align-items-center">
+  <div className="d-none d-md-block">
+    {state.totalPages > 0 && (
+      <>Страница {state.currentPage} из {state.totalPages}</>
+    )}
+  </div>
+
+  <div className="text-center flex-grow-1">
+    <button
+      type="button"
+      className="btn btn-secondary"
+      onClick={handletCreateClick}
+    >
+      Создать новое обследование
+    </button>
+  </div>
+
+  <div className="d-flex gap-1 justify-content-end">
+    {state.totalPages > 0 && (
+      <InputGroup size="sm">
+        <Button
+          variant="outline-info"
+          disabled={isFirstPage}
+          onClick={paginationActions.firstPage}
+        >
+          <FontAwesomeIcon icon={faFastBackward} /> First
+        </Button>
+        <Button
+          variant="outline-info"
+          disabled={isFirstPage}
+          onClick={paginationActions.prevPage}
+        >
+          <FontAwesomeIcon icon={faStepBackward} /> Prev
+        </Button>
+        <Button
+          variant="outline-info"
+          disabled={isLastPage}
+          onClick={paginationActions.nextPage}
+        >
+          <FontAwesomeIcon icon={faStepForward} /> Next
+        </Button>
+        <Button
+          variant="outline-info"
+          disabled={isLastPage}
+          onClick={paginationActions.lastPage}
+        >
+          <FontAwesomeIcon icon={faFastForward} /> Last
+        </Button>
+      </InputGroup>
+    )}
+  </div>
+</Card.Footer>
       </Card>
     </div>
   );

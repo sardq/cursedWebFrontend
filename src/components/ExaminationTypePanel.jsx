@@ -47,7 +47,23 @@ const ExaminationPanel = () => {
     totalPages: 0,
     totalElements: 0,
   });
-  
+  const [errors, setErrors] = useState({
+  name: '',
+  modalTypeName: ''
+});
+const validateForm = () => {
+  const newErrors = {};
+
+  if (!name.trim()) {
+    newErrors.name = 'Введите название типа обследования';
+  } else if (name.length < 3) {
+      newErrors.name = 'Название типа обследования должно быть не менее 3 символов';
+    } 
+
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
   const getExaminationTypes = useCallback(async (page) => {
   try {
     const pageNumber = page - 1;
@@ -135,6 +151,7 @@ const resetForm = () => {
     setEditingId(null);
     setCreating(false);
     setUpdating(false);
+    setErrors({});
     setName('');
     closeModal();
     getExaminationTypes(1);
@@ -174,10 +191,11 @@ const resetForm = () => {
                   <input
                     type="text"
                     id="name"
-                    className="form-control"
+                    className={`form-control ${errors.name ? 'is-invalid' : ''}`}
                     value={name}
                     onChange={e => setName(e.target.value)}
                   />
+                  {errors.name && <div className="invalid-feedback">{errors.name}</div>}
                 </div>
             <div className="modal-footer">
               <button
@@ -192,6 +210,7 @@ const resetForm = () => {
                 className="btn btn-primary"
                 disabled={creating || updating}
                 onClick={async () => {
+                    if (!validateForm()) return;
                   const formData = new FormData();
                   formData.append('name', name);
 
@@ -302,55 +321,58 @@ const resetForm = () => {
               </Table>
       </Card.Body>
 
-        {state?.examinationTypes?.length > 0 && (
-          <Card.Footer className="d-flex justify-content-between align-items-center">
-            <div>
-              Страница {state.currentPage} из {state.totalPages}
-            </div>
-            <div>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handletCreateClick}
-              >
-                Создать новый тип обследования
-              </button>
-            </div>
-            <div>
+        <Card.Footer className="d-flex justify-content-between align-items-center">
+          <div className="d-none d-md-block">
+            {state.totalPages > 0 && (
+              <>Страница {state.currentPage} из {state.totalPages}</>
+            )}
+          </div>
+        
+          <div className="text-center flex-grow-1">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handletCreateClick}
+            >
+              Создать новое обследование
+            </button>
+          </div>
+        
+          <div className="d-flex gap-1 justify-content-end">
+            {state.totalPages > 0 && (
               <InputGroup size="sm">
-                  <Button
-                    variant="outline-info"
-                    disabled={isFirstPage}
-                    onClick={paginationActions.firstPage}
-                  >
-                    <FontAwesomeIcon icon={faFastBackward} /> First
-                  </Button>
-                  <Button
-                    variant="outline-info"
-                    disabled={isFirstPage}
-                    onClick={paginationActions.prevPage}
-                  >
-                    <FontAwesomeIcon icon={faStepBackward} /> Prev
-                  </Button>
-                
-                  <Button
-                    variant="outline-info"
-                    disabled={isLastPage}
-                    onClick={paginationActions.nextPage}
-                  >
-                    <FontAwesomeIcon icon={faStepForward} /> Next
-                  </Button>
-                  <Button
-                    variant="outline-info"
-                    disabled={isLastPage}
-                    onClick={paginationActions.lastPage}
-                  >
-                    <FontAwesomeIcon icon={faFastForward} /> Last
-                  </Button>
+                <Button
+                  variant="outline-info"
+                  disabled={isFirstPage}
+                  onClick={paginationActions.firstPage}
+                >
+                  <FontAwesomeIcon icon={faFastBackward} /> First
+                </Button>
+                <Button
+                  variant="outline-info"
+                  disabled={isFirstPage}
+                  onClick={paginationActions.prevPage}
+                >
+                  <FontAwesomeIcon icon={faStepBackward} /> Prev
+                </Button>
+                <Button
+                  variant="outline-info"
+                  disabled={isLastPage}
+                  onClick={paginationActions.nextPage}
+                >
+                  <FontAwesomeIcon icon={faStepForward} /> Next
+                </Button>
+                <Button
+                  variant="outline-info"
+                  disabled={isLastPage}
+                  onClick={paginationActions.lastPage}
+                >
+                  <FontAwesomeIcon icon={faFastForward} /> Last
+                </Button>
               </InputGroup>
-            </div>
-          </Card.Footer>
-        )}
+            )}
+          </div>
+        </Card.Footer>
       </Card>
     </div>
   );
