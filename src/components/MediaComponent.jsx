@@ -7,7 +7,6 @@ const MediaItem = ({ media, onDelete }) => {
 
   useEffect(() => {
     let objectUrl = null;
-
     const fetchMedia = async () => {
       try {
         setLoading(true);
@@ -57,7 +56,7 @@ const MediaItem = ({ media, onDelete }) => {
   );
 };
 
-const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave }, ref) => {
+const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen }, ref) => {
   const [mediaList, setMediaList] = useState([]);
   const [tempFiles, setTempFiles] = useState([]); 
   const [filesToUpload, setFilesToUpload] = useState([]);
@@ -75,16 +74,20 @@ const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave },
 
   useEffect(() => {
     if (examinationId && isModalOpen) fetchMedia();
+    console.log("2");
   }, [examinationId, isModalOpen, fetchMedia]);
 
-  useEffect(() => {
-    if (!isModalOpen) {
-      tempFiles.forEach((f) => URL.revokeObjectURL(f.url));
-      setTempFiles([]);
-      setFilesToUpload([]);
-      setDeletedMediaIds([]);
-    }
-  }, [isModalOpen]);
+useEffect(() => {
+  if (!isModalOpen) {
+    tempFiles.forEach((f) => URL.revokeObjectURL(f.url));
+    console.log("1");
+    setTempFiles([]);
+    setFilesToUpload([]);
+    setMediaList([]);
+    setDeletedMediaIds([]);
+  }
+}, [isModalOpen]);
+
 
   const handleMediaFilesChange = (e) => {
     const files = Array.from(e.target.files);
@@ -120,7 +123,9 @@ const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave },
   };
 
   useImperativeHandle(ref, () => ({
+    
     handleSave: async () => {
+      if (!examinationId) return;
       try {
         if (filesToUpload.length) {
           const formData = new FormData();
@@ -144,6 +149,12 @@ const MediaUploadComponent = forwardRef(({ examinationId, isModalOpen, onSave },
         setError('Ошибка при сохранении медиа');
       }
     },
+    clearTemporaryMedia: () => {
+    tempFiles.forEach((f) => URL.revokeObjectURL(f.url));
+    setTempFiles([]);
+    setFilesToUpload([]);
+    setDeletedMediaIds([]);
+  }
   }));
 
   return (

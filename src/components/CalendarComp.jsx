@@ -4,7 +4,7 @@ import format from 'date-fns/format';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 
-const CalendarComp = ({ value, onChange }) => {
+const CalendarComp = ({ value, onChange, error }) => {
   const [open, setOpen] = useState(false);
   const refOne = useRef(null);
 
@@ -34,7 +34,7 @@ const CalendarComp = ({ value, onChange }) => {
   <input
     value={format(value, 'yyyy-MM-dd')}
     readOnly
-    className="inputBox"
+    className={`inputBox form-control ${!value || error ? 'is-invalid' : ''}`}
     onClick={() => setOpen(!open)}
     style={{ cursor: 'pointer' }}
   />

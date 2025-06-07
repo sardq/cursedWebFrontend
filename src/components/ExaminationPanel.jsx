@@ -139,8 +139,14 @@ const validateForm = () => {
   } else if (conclusion.length < 5) {
       newErrors.conclusion = 'Заключение обследования должно быть не менее 5 символов';
   } 
+  const now = new Date();
+  const inputDate = new Date(time);
+
   if (!time) {
   newErrors.time =("Дата обследования обязательна.");
+  } else if (inputDate > now) {
+  newErrors.time =("Дата обследования не может быть позже чем сегодня.");
+
   }
   if (!modalTypeName) {
   newErrors.type =("Выберите тип обследования.");
@@ -240,7 +246,7 @@ const handelDeleteExamination = async (examinationId) => {
   };
   const handletEditClick = (examination) => {
   
-    setEditingId(examination.id);
+  setEditingId(examination.id);
   setDescription(examination.description);
   setConclusion(examination.conclusion);
   setTime(new Date(examination.time));
@@ -255,6 +261,8 @@ const handelDeleteExamination = async (examinationId) => {
     openModal();
   }
   const handletCreateClick = () => {
+    setEditingId(null);
+    mediaRef.current?.clearTemporaryMedia();
     openModal();
   }
 
@@ -275,19 +283,21 @@ const openModal = () => {
       return copy;
     });
   };
-const handleSave = async () => {
+const handleSave = async ( examinationId) => {
 
-   await mediaRef.current?.handleSave();
+   if (mediaRef.current) {
+  await mediaRef.current.handleSave(editingId);
+  }
+
   for (const param of parameterValues) {
     const parameterName = parameters.find(p => p.id === param.parametersId)?.name;
 
     const payload = {
       parametersId: param.parametersId,
-      examinationId: editingId,
+      examinationId: examinationId,
       parametersName: parameterName,
       body: param.value
     };
-
     try {
       if (param.id) {
         await axios.post(`/api/protocolParametres/edit/${param.id}`, payload);
@@ -313,6 +323,7 @@ const resetForm = () => {
     setParameters([]);
     setParameterValues([]);
     closeModal();
+    mediaRef.current.clearTemporaryMedia();
     getExaminations(1);
   };
 
@@ -334,8 +345,6 @@ const resetForm = () => {
       if (editingId) {
         const valResponse = await axios.get(`/api/protocolParametres?examinationId=${editingId}`);
         const values = valResponse.data;
-        console.log(valResponse);
-        console.log(values);
 
         const paramMap = new Map();
         for (let val of values) {
@@ -370,6 +379,7 @@ const handleTypeChoose = (e) => {
     
     setExaminationTypeId(selectedId?.id ?? null);
     setModalTypeName(selectedType);
+      setParameterValues([]);
   };
   const handleUserChoose = (e) => {
     const selectedUser = e.target.value;
@@ -432,8 +442,8 @@ const handleTypeChoose = (e) => {
                 </div>
                 <div className="mb-3">
                   <label htmlFor="time" className="form-label">Дата обследования</label>
-                  <CalendarComp value={time} onChange={setTime} />
-                  {errors.time && <div className="invalid-feedback">{errors.time}</div>}
+                  <CalendarComp value={time} onChange={setTime} error={errors.time}/>
+                  {errors.time && <div className="invalid-feedback d-block">{errors.time}</div>}
                 </div>
                 <div className="mb-3">
                   <label htmlFor="examinationType" className="form-label">Тип обследования</label>
@@ -502,7 +512,7 @@ const handleTypeChoose = (e) => {
                   <p className="text-muted">Нет параметров для выбранного типа</p>
                 )
               )}
-              { editingId !== null && <MediaUploadComponent ref={mediaRef} examinationId={editingId} isModalOpen={editingId ? true : false}/>}
+              <MediaUploadComponent ref={mediaRef} examinationId={editingId} isModalOpen={editingId ? true : false}/>
             </div>
 
             <div className="modal-footer">
@@ -537,8 +547,10 @@ const handleTypeChoose = (e) => {
                   if (editingId) {
                     setUpdating(true);
                     try {
-                      await updateExamination(editingId, formData);
-                      await handleSave();
+                      const response = await updateExamination(editingId, formData);
+                      setEditingId(response.id);
+                      await handleSave(response.id);
+                      if (mediaRef.current) await mediaRef.current.handleSave(editingId);
                       setUpdating(false);
                       resetForm();
                     } catch (e) {
@@ -551,7 +563,8 @@ const handleTypeChoose = (e) => {
                       const response = await saveExamination(formData);
                       console.log(response);
                       setEditingId(response.id);
-                      await handleSave();
+                      await handleSave(response.id);
+                      if (mediaRef.current) await mediaRef.current.handleSave(response.id);
                       setCreating(false);
                       resetForm();
                     } catch (e) {
