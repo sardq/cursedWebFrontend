@@ -1,4 +1,4 @@
-import  React, { useContext } from 'react';
+import  React, { useContext, useState } from 'react';
 
 import { request, setAuthHeader } from '../helpers/axios_helper';
 import axios from 'axios';
@@ -19,6 +19,7 @@ import ExaminationStatistics from './ExaminationStatistic';
 export default function AppContent() {
 
     const { role, setRole, view, setEmail, setView } = useContext(AuthContent);
+    const [showToast, setShowToast] = useState(false);
 
 
     const onLogin = (e, email, password) => {
@@ -51,6 +52,8 @@ export default function AppContent() {
                 }
             }).catch(
             (error) => {
+                setShowToast(true);
+                setTimeout(() => setShowToast(false), 3000);
                 setAuthHeader(null);
             }
         );
@@ -72,6 +75,8 @@ export default function AppContent() {
                 setView("login");
             }).catch(
             (error) => {
+                setShowToast(true);
+                setTimeout(() => setShowToast(false), 3000);
                 setAuthHeader(null);
             }
         );
@@ -79,8 +84,8 @@ export default function AppContent() {
 
     return (
       <>
-        {view === "login" && <LoginForm onLogin={onLogin} />}
-        {view === "register" && <RegistrationForm onRegister={onRegister} />}
+        {view === "login" && <LoginForm onLogin={onLogin} showToast ={showToast} setShowToast={setShowToast}/>}
+        {view === "register" && <RegistrationForm onRegister={onRegister} showToast ={showToast} setShowToast={setShowToast} />}
         {view === "userHome" && role === "USER" && <UserHome/>}
         {view === "authSelection" && role === "ADMIN" && <AuthSelection/>}
         {view === "emailAuth" && role === "ADMIN" && <EmailAuth/>}

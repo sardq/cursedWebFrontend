@@ -17,7 +17,8 @@ export default function Header({ pageTitle, logoSrc }) {
         <h1 className="App-title ml-3">{pageTitle}</h1>
       </div>
 
-      {role === 'ADMIN' && email === null && (
+      {/* {role === 'ADMIN' && email === null && ( */}
+      {role === 'ADMIN'  && (
         <nav>
             <button
             className="btn m-2 bg-transparent"
