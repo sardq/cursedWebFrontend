@@ -34,6 +34,8 @@ const ExaminationPanel = () => {
   const [creating, setCreating] = useState(false);
   const [updating, setUpdating] = useState(false);
 
+ const [messsage, setMessage] = useState('');
+  const [header, setHeader] = useState('');
   const [showToast, setShowToast] = useState(false);
   const modalRef = useRef(null);
   const modalInstanceRef = useRef(null);
@@ -121,6 +123,8 @@ useEffect(() => {
 const handelDeleteExaminationType = async (examinationId) => {
     try {
       await deleteExaminationType(examinationId);
+      setMessage("Тип обследования успешно удален.");
+      setHeader("Успех");
       setShowToast(true);
       setTimeout(() => setShowToast(false), 3000);      
       await getExaminationTypes(state.currentPage);
@@ -161,8 +165,9 @@ const resetForm = () => {
    <div className="main-content">
      <div style={{ display: showToast ? "block" : "none" }}>
           <MyToast
+            header ={header}
             show={showToast}
-            message={"Тип обследования успешно удален."}
+            message={messsage}
             type={"danger"}
           />
       </div>
@@ -221,7 +226,10 @@ const resetForm = () => {
                       setUpdating(false);
                       resetForm();
                     } catch (e) {
-                      console.error("Ошибка при обновлении:", e);
+                      setMessage("Такой тип обследования уже существует");
+                      setHeader("Ошибка");
+                      setShowToast(true);
+                      setTimeout(() => setShowToast(false), 3000);   
                       setUpdating(false);
                     }
                   } else {
@@ -231,7 +239,10 @@ const resetForm = () => {
                       setCreating(false);
                       resetForm();
                     } catch (e) {
-                      console.error("Ошибка при создании:", e);
+                      setMessage("Такой тип обследования уже существует");
+                      setHeader("Ошибка");
+                      setShowToast(true);
+                      setTimeout(() => setShowToast(false), 3000);   
                       setCreating(false);
                     }
                   }
