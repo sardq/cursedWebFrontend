@@ -57,7 +57,7 @@ const openFullExaminationModal = async (id) => {
     const paramDefs = await axios.get(`/api/parametres/GetParametersByTypeId`, { params: { examinationTypeId: exam.examinationTypeId } });
     const paramVals = await axios.get(`/api/protocolParametres`, { params: { examinationTypeId:exam.examinationTypeId } });
     const mediaResp = await axios.get(`/api/media`, { params: { examinationId:id } });
-
+    console.log(mediaResp);
     const valueMap = new Map(paramVals.data.map(pv => [pv.parametersId, pv.body]));
     const combinedParams = paramDefs.data.content.map(p => ({
       id: p.id,
@@ -70,7 +70,7 @@ const openFullExaminationModal = async (id) => {
       show: true,
       examination: exam,
       parameters: combinedParams,
-      media: mediaResp.data
+      media: [...mediaResp.data]
     });
     console.log(fullModalData);
   } catch (error) {

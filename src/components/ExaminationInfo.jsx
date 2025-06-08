@@ -33,7 +33,7 @@ const ExaminationFullModal = ({ show, onHide, examination, parameters, media, on
 
         <hr />
         <h5>Медиафайлы</h5>
-        <MediaViewer media={media} />
+        <MediaViewer  media={media} />
       </Modal.Body>
       <Modal.Footer>
         <Button variant="success" onClick={() => onDownloadReport(examination.id)}>Сохранить отчёт</Button>
