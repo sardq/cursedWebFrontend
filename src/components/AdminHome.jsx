@@ -43,7 +43,10 @@ const AuthSelection = () => {
       <h2 className="text-white">Добро пожаловать, сотрудник!</h2>
       <p className="text-light">Выберите одно из доступных действий ниже.</p>
     </div>
-
+<div
+      className="row"
+      style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px' }}
+    >
     <div className="col-sm-6 col-lg-4">
       <div className="card bg-dark text-white border-info h-100">
         <div className="card-body d-flex flex-column justify-content-between">
@@ -103,6 +106,7 @@ const AuthSelection = () => {
         </div>
       </div>
     </div>
+
     <div className="col-sm-6 col-lg-4">
   <div className="card bg-dark text-white border-info h-100">
     <div className="card-body d-flex flex-column justify-content-between">
@@ -117,7 +121,20 @@ const AuthSelection = () => {
     </div>
   </div>
 </div>
+<div className="col-sm-6 col-lg-4 mb-3">
+        <div className="card bg-dark text-white border-info h-100">
+          <div className="card-body d-flex flex-column justify-content-between">
+            <h5 className="card-title">Обработка тикетов</h5>
+            <p className="card-text">Ответы на обращения пользователей.</p>
+            <button className="btn btn-outline-info mt-auto" onClick={() => setView('ticketPanel')}>
+              Перейти
+            </button>
+          </div>
+        </div>
+      </div>
+      
   </div>
+</div>
 </div>
   );
 };

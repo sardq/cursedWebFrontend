@@ -121,8 +121,9 @@ const handelDeleteUser = async (userId) => {
    <div className="main-content">
      <div style={{ display: showToast ? "block" : "none" }}>
           <MyToast
+            header = {"Успех"}
             show={showToast}
-            message={"Тип обследования успешно удален."}
+            message={"Пользователь успешно удален."}
             type={"danger"}
           />
       </div>

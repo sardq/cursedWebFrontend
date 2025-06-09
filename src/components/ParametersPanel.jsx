@@ -211,7 +211,7 @@ useEffect(() => {
         <div className="modal-dialog ">
           <div className="modal-content text-white">
             <div className="modal-header">
-              <h5 className='modal-title' id="parameterModalLabel">{editingId ? 'Редактировать параметр' : 'Создать тип параметр'}</h5>
+              <h5 className='modal-title' id="parameterModalLabel">{editingId ? 'Редактировать параметр' : 'Создать параметр'}</h5>
               <button
                 type="button"
                 className="btn-close"
