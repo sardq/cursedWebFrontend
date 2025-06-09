@@ -54,8 +54,8 @@ const TicketPanel = () => {
 
   if (!answer.trim()) {
     newErrors.answer = 'Введите название параметра';
-  } else if (answer.length < 3) {
-      newErrors.answer = 'Название параметра должно быть не менее 3 символов';
+  } else if (answer.length < 10) {
+      newErrors.answer = 'Ответ должен быть не менее 10 символов';
     } 
 
   setErrors(newErrors);
@@ -132,7 +132,16 @@ const handelDeleteTicket = async (ticketId) => {
     console.error("Ошибка при удалении:", error);
   }
 };
-
+const getRussianStatus = (status) => {
+  switch (status) {
+    case 'InProcess':
+      return 'В обработке';
+    case 'Answered':
+      return 'Отвечено';
+    default:
+      return status;
+  }
+};
 const openModal = (ticket) => {
     if (modalRef.current) {
       setAnsweringId(ticket.id)
@@ -145,7 +154,7 @@ const openModal = (ticket) => {
     }
   };
    const closeModal = () => modalInstanceRef.current?.hide();
-
+const hasInProcessTickets = state?.tickets.some(ticket => ticket.status === 'InProcess');
 const resetForm = () => {
     setAnsweringId(null);
     setCreating(false);
@@ -159,8 +168,9 @@ const resetForm = () => {
    <div className="main-content">
      <div style={{ display: showToast ? "block" : "none" }}>
           <MyToast
+            header={"Успех"}
             show={showToast}
-            message={"Тип обследования успешно удален."}
+            message={"Тикет успешно удален."}
             type={"danger"}
           />
       </div>
@@ -243,7 +253,7 @@ const resetForm = () => {
       <div className="container-fluid">
     <div className="row g-3">
       <div className="col-12 col-md-4 col-lg-2">
-        <FontAwesomeIcon icon={faList} /> Список пользователей
+        <FontAwesomeIcon icon={faList} /> Список тикетов
       </div>
       <div className="col-12 col-md-8 col-lg-2">
         <h6>Поиск</h6>
@@ -287,38 +297,43 @@ const resetForm = () => {
     <col style={{ width: "20%" }} /> 
     <col style={{ width: "30%" }} /> 
     <col style={{ width: "20%" }} /> 
-    <col style={{ width: "20%" }} /> 
-    <col style={{ width: "10%" }} /> 
+     {hasInProcessTickets && <col style={{ width: "20%" }} />}
+    <col style={{ width: hasInProcessTickets ? "10%" : "20%" }} />
   </colgroup>
               <thead>
                 <tr>
                   <th>ID чата</th>
                   <th>Сообщение</th>
                   <th>Статус</th>
-                  <th>Ответить</th>
+                  {hasInProcessTickets && <th>Ответить</th>}
                   <th>Действия</th>
                 </tr>
               </thead>
               <tbody>
                 {state?.tickets?.length === 0 ? (
                   <tr align="center">
-                    <td colSpan="7">Нет доступных пользователей.</td>
+                    <td colSpan="7">Нет доступных тикетов.</td>
                   </tr>
                 ) : (
                   state?.tickets?.map((ticket) => (
                     <tr key={ticket.id}>
                       <td>{ticket.chatId}</td>
                       <td>{ticket.message}</td>
-                      <td>{ticket.status}</td>
-                      <td>
-                        <Button
-                        size="sm"
-                        variant="outline-success"
-                        onClick={() => openModal(ticket)}
-                        >
-                        Ответить
-                        </Button></td>
-                      <td>
+                      <td>{getRussianStatus(ticket.status)}</td>
+                      {ticket.status === 'InProcess' && (
+                        <td>
+                         <div className="d-flex justify-content-center" >
+                      <Button
+                      variant="outline-info"
+                      onClick={() => openModal(ticket)}
+                      >
+
+                      Ответить
+                      </Button>
+                      </div>
+                      </td>
+                       )}
+                       <td>
                         <ButtonGroup className="justify-content-between">
                           <Button
                             size="sm"

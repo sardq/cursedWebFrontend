@@ -409,7 +409,7 @@ useEffect(() => {
               className="btn btn-secondary"
               onClick={handletCreateClick}
             >
-              Создать новое обследование
+              Создать новый параметр
             </button>
           </div>
         

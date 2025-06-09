@@ -62,7 +62,7 @@ const UserPanel = () => {
       currentPage: data.number + 1,
     }));
   } catch (error) {
-    console.error("Ошибка при загрузке обследований:", error);
+    console.error("Ошибка при загрузке пользователей:", error);
     localStorage.removeItem("jwtToken");
   }
 }, [state.search, state.usersPerPage]);

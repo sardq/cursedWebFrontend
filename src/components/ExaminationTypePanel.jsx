@@ -86,7 +86,7 @@ const validateForm = () => {
       currentPage: data.number + 1,
     }));
   } catch (error) {
-    console.error("Ошибка при загрузке обследований:", error);
+    console.error("Ошибка при загрузке типов обследований:", error);
     localStorage.removeItem("jwtToken");
   }
 }, [state.search, state.examinationTypesPerPage]);
@@ -345,7 +345,7 @@ const resetForm = () => {
               className="btn btn-secondary"
               onClick={handletCreateClick}
             >
-              Создать новое обследование
+              Создать новый тип обследования
             </button>
           </div>
         
