@@ -110,10 +110,10 @@ const downloadReport = async (id) => {
 const examResp = await axios.get(`/api/examination/${id}`);
     const exam = examResp.data;
     const paramDefs = await axios.get(`/api/parametres/GetParametersByTypeId`, { params: { examinationTypeId: exam.examinationTypeId } });
-    const paramVals = await axios.get(`/api/protocolParametres`, { params: { examinationTypeId:exam.examinationTypeId } });
+    const paramVals = await axios.get(`/api/protocolParametres`, { params: {  examinationId: id, page: 0 } });
     const mediaResp = await axios.get(`/api/media`, { params: { examinationId:id } });
-
-    const valueMap = new Map(paramVals.data.map(pv => [pv.parametersId, pv.body]));
+    const filteredParamVals = paramVals.data.filter(pv => pv.examinationId === id);
+    const valueMap = new Map(filteredParamVals.map(pv => [pv.parametersId, pv.body]));
     const combinedParams = paramDefs.data.content.map(p => ({
       name: p.name,
       value: valueMap.get(p.id) || ''

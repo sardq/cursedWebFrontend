@@ -43,8 +43,8 @@ export default function AppContent() {
                 if (userRole === "ADMIN")
                 {
                     setEmail(data.email);
-                    //setView("authSelection");
-                    setView("adminHome");
+                    setView("authSelection");
+                    //setView("adminHome");
                 }
                 else
                 {
